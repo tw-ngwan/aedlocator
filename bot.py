@@ -28,7 +28,7 @@ TOKEN = '1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8'
 bot = telebot.TeleBot(TOKEN)
 server = Flask(__name__)
 
-PORT = int(os.environ.get('PORT', 5000))
+PORT = int(os.environ.get('PORT', 8443))
 
 
 ####################################################################################
@@ -302,20 +302,23 @@ def qFunc(message):
 
 #####################################################################################
 
-@server.route('/' + TOKEN, methods=['POST'])
-def getMessage():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
+bot.polling()
 
 
-@server.route("/")
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url='https://polar-chamber-36116.herokuapp.com/' + TOKEN)
-    return "!", 200
+# @server.route('/' + TOKEN, methods=['POST'])
+# def getMessage():
+#     json_string = request.get_data().decode('utf-8')
+#     update = telebot.types.Update.de_json(json_string)
+#     bot.process_new_updates([update])
+#     return "!", 200
 
 
-if __name__ == "__main__":
-    server.run(host="0.0.0.0", port=PORT)
+# @server.route("/")
+# def webhook():
+#     bot.remove_webhook()
+#     bot.set_webhook(url='https://polar-chamber-36116.herokuapp.com/' + TOKEN)
+#     return "!", 200
+
+
+# if __name__ == "__main__":
+#     server.run(host="0.0.0.0", port=PORT)
