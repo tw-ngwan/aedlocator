@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, request
-
+import sys
 import telebot
 
 TOKEN = "1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8"
@@ -36,4 +36,5 @@ def webhook():
 
 if __name__ == "__main__":
     print("running")
+    sys.stdout.flush()
     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
