@@ -7,6 +7,7 @@ import telebot
 import geopy.distance
 from telegram import Location, KeyboardButton
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 """
@@ -22,7 +23,10 @@ Issues to solve for
 """
 
 #API_key = os.environ.get('aedAPI_KEY')
+TOKEN = '1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8'
 bot = telebot.TeleBot('1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8')
+PORT = int(os.environ.get('PORT', 5000))
+
 
 ####################################################################################
 #Global Variables
@@ -292,4 +296,34 @@ def qFunc(message):
         errorString = "Sorry something went wrong! Please press /start to try again!"
         bot.send_message(message.chat.id,errorString)
 
-bot.polling()   
+#bot.polling()   
+
+def main():
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    updater = Updater(TOKEN, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+
+   
+
+    # Start the Bot
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN)
+    updater.bot.setWebhook('https://polar-chamber-36116.herokuapp.com/' + TOKEN)
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
