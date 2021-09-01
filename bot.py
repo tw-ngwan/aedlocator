@@ -37,4 +37,5 @@ def webhook():
 if __name__ == "__main__":
     print("running")
     sys.stdout.flush()
+    server.config['DEBUG'] = True
     server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
