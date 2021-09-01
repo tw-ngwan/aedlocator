@@ -133,7 +133,7 @@ def start(message):
         welcomeString = """
         Hello, would you like to see your nearest AED or a static map?
 If you click Nearest AED, the bot will request your location!
-Click the RESTART button at any time to restart the commands!
+Click the RESTART button at any time to restart the commands!!
         """
         bot.send_message(message.chat.id,text= welcomeString, reply_markup=start)
     except Exception:
