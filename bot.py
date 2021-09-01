@@ -21,7 +21,7 @@ Issues to solve for
 
 """
 
-API_key = os.environ.get('aedAPI_KEY')
+#API_key = os.environ.get('aedAPI_KEY')
 bot = telebot.TeleBot('1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8')
 
 ####################################################################################
