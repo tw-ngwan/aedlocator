@@ -99,205 +99,210 @@ campMaps = {
 
 ####################################################################################
 
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hi!')
+
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Help!')
 
 
 
+# @bot.message_handler(commands=['help'])
+# def help(message, context):
+#     bot.send_message(message.chat.id, """ 
+#     Welcome to AED Bot!
+#     If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
 
+# If you haven't used the bot in a while, just type in /start and the bot will restart
 
-@bot.message_handler(commands=['help'])
-def help(message):
-    bot.send_message(message.chat.id, """ 
-    Welcome to AED Bot!
-    If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
-
-If you haven't used the bot in a while, just type in /start and the bot will restart
-
-If you have any issues please contact 62FMD at 6AMB!
+# If you have any issues please contact 62FMD at 6AMB!
     
-    """)
+#     """)
 
-#added value error exception but it may not be needed
-@bot.message_handler(commands=['start'])
-@bot.message_handler(func=lambda msg: msg.text == "/start")
-@bot.message_handler(func=lambda msg: msg.text == "RESTART")
-def start(message):
-    try:
+# #added value error exception but it may not be needed
+# @bot.message_handler(commands=['start'])
+# @bot.message_handler(func=lambda msg: msg.text == "/start")
+# @bot.message_handler(func=lambda msg: msg.text == "RESTART")
+# def start(message, context):
+#     try:
         
         
-        loc = telebot.types.KeyboardButton(text='Nearest AED', request_location=True)
-        not_loc = telebot.types.KeyboardButton(text='Static Map')
-        quit = campButtons["Quit"]
+#         loc = telebot.types.KeyboardButton(text='Nearest AED', request_location=True)
+#         not_loc = telebot.types.KeyboardButton(text='Static Map')
+#         quit = campButtons["Quit"]
 
-        start = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
-        start.add(loc, not_loc, quit)
-        welcomeString = """
-        Hello, would you like to see your nearest AED or a static map?
-If you click Nearest AED, the bot will request your location!
-Click the RESTART button at any time to restart the commands!!
-        """
-        bot.send_message(message.chat.id,text= welcomeString, reply_markup=start)
-    except Exception:
-        errorString = "Sorry something went wrong! Please press /start to try again!"
-        bot.send_message(message.chat.id,errorString)
+#         start = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+#         start.add(loc, not_loc, quit)
+#         welcomeString = """
+#         Hello, would you like to see your nearest AED or a static map?
+# If you click Nearest AED, the bot will request your location!
+# Click the RESTART button at any time to restart the commands!!
+#         """
+#         bot.send_message(message.chat.id,text= welcomeString, reply_markup=start)
+#     except Exception:
+#         errorString = "Sorry something went wrong! Please press /start to try again!"
+#         bot.send_message(message.chat.id,errorString)
 
 
 
     
-#if location is not handled correctly, exception is now raised
-@bot.message_handler(content_types=['location'])
-def currentLocation(message):
-    try:
-        chat_id = message.chat.id
+# #if location is not handled correctly, exception is now raised
+# @bot.message_handler(content_types=['location'])
+# def currentLocation(message):
+#     try:
+#         chat_id = message.chat.id
        
-        if message.location:
-            aed = AED(message.location)
-            aedDict[chat_id] = aed
-            sendString = """
-            Which camp are you at?
-        """
-            locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+#         if message.location:
+#             aed = AED(message.location)
+#             aedDict[chat_id] = aed
+#             sendString = """
+#             Which camp are you at?
+#         """
+#             locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-            locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
-                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
-                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
+#             locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+#                 campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+#                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
             
-            msg = bot.send_message(message.chat.id,sendString, reply_markup=locs)
-            bot.register_next_step_handler(msg, distanceCalculator)
-        else:
-            raise ValueError
-    except ValueError:
-       bot.send_message(message.chat.id,"Could not get user location, press /start to try again!" )
+#             msg = bot.send_message(message.chat.id,sendString, reply_markup=locs)
+#             bot.register_next_step_handler(msg, distanceCalculator)
+#         else:
+#             raise ValueError
+#     except ValueError:
+#        bot.send_message(message.chat.id,"Could not get user location, press /start to try again!" )
 
 
-#exception handling added for out of scope input
-def distanceCalculator(message):
-    try:
-        chat_id = message.chat.id
-        aed = aedDict[chat_id]
+# #exception handling added for out of scope input
+# def distanceCalculator(message):
+#     try:
+#         chat_id = message.chat.id
+#         aed = aedDict[chat_id]
 
-        camp =  message.text.lower()
-        if message.text == "QUIT":
-            raise Exception
-        elif message.text == "/start" or message.text == "RESTART":
-            start(message)
-        elif camp not in campMaps.keys():
-            raise ValueError
+#         camp =  message.text.lower()
+#         if message.text == "QUIT":
+#             raise Exception
+#         elif message.text == "/start" or message.text == "RESTART":
+#             start(message)
+#         elif camp not in campMaps.keys():
+#             raise ValueError
         
         
-        if camp in locations.keys():
-            minDist = 100000000000
-            for coords in locations[camp].values():
-                dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+#         if camp in locations.keys():
+#             minDist = 100000000000
+#             for coords in locations[camp].values():
+#                 dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
                 
-                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
-                aed.aeds[dist] = coords
-                if dist < minDist:
-                    minDist = dist
-            sortedDist = sorted(list(aed.aeds.keys()))
-            bot.send_message(message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
-            bot.send_chat_action(message.chat.id, "typing")
-            sleep(3)
-            counter = 0
-            for keys in sortedDist:
-                if counter > 1: # to limit to the 2 closest AEDs
-                    break
-                bot.send_location(message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
-                sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-                bot.send_message(message.chat.id,sendString )
-                counter += 1
+#                 #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
+#                 aed.aeds[dist] = coords
+#                 if dist < minDist:
+#                     minDist = dist
+#             sortedDist = sorted(list(aed.aeds.keys()))
+#             bot.send_message(message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
+#             bot.send_chat_action(message.chat.id, "typing")
+#             sleep(3)
+#             counter = 0
+#             for keys in sortedDist:
+#                 if counter > 1: # to limit to the 2 closest AEDs
+#                     break
+#                 bot.send_location(message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
+#                 sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
+#                 bot.send_message(message.chat.id,sendString )
+#                 counter += 1
                 
-                sleep(0.5)
-            finalString = "Stay Safe!"
-            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-            bot.send_message(message.chat.id, finalString )
-        elif camp == "/start" or message.text == "RESTART":
-            pass
-        else:
-            bot.send_message(message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
+#                 sleep(0.5)
+#             finalString = "Stay Safe!"
+#             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+#             bot.send_message(message.chat.id, finalString )
+#         elif camp == "/start" or message.text == "RESTART":
+#             pass
+#         else:
+#             bot.send_message(message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
     
-    #introducing exception handling if the input is not from the buttons
-    except ValueError:
-        if camp.isalpha():
-            errorString = "Please use the buttons provided! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-        else:
-            errorString = "This input is not recognized! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-    except Exception:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+#     #introducing exception handling if the input is not from the buttons
+#     except ValueError:
+#         if camp.isalpha():
+#             errorString = "Please use the buttons provided! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#         else:
+#             errorString = "This input is not recognized! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#     except Exception:
+#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
 
 
 
-#========================================================================
+# #========================================================================
 
 
-def checker (message):
-    if message.text == "Static Map" and message.content_type == 'text':
-        return True
-    else:
-        return False
+# def checker (message):
+#     if message.text == "Static Map" and message.content_type == 'text':
+#         return True
+#     else:
+#         return False
 
 
-@bot.message_handler(func=checker)
-def staticMap(message):
-    try:
+# @bot.message_handler(func=checker)
+# def staticMap(message, context):
+#     try:
        
-        locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+#         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-        locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
-                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
-                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
+#         locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+#                 campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+#                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
-        msg = bot.reply_to(message, """\
-        Which camp would you like a map for?
-        """, reply_markup=locs)
-        bot.register_next_step_handler(msg, returnImage)
-    except Exception as e:
-        bot.reply_to(message, 'oooops')
+#         msg = bot.reply_to(message, """\
+#         Which camp would you like a map for?
+#         """, reply_markup=locs)
+#         bot.register_next_step_handler(msg, returnImage)
+#     except Exception as e:
+#         bot.reply_to(message, 'oooops')
 
-def returnImage(message):
-    try:
-        chat_id = message.chat.id
-        msg = message.text.lower()
-        url = ""
+# def returnImage(message):
+#     try:
+#         chat_id = message.chat.id
+#         msg = message.text.lower()
+#         url = ""
 
-        if message.text == "QUIT":
-            raise Exception
-        elif msg in campMaps.keys():
-            url = campMaps[msg]
-        elif message.text == "/start" or message.text == "RESTART":
-            start(message)
-        else:
-            raise ValueError
+#         if message.text == "QUIT":
+#             raise Exception
+#         elif msg in campMaps.keys():
+#             url = campMaps[msg]
+#         elif message.text == "/start" or message.text == "RESTART":
+#             start(message)
+#         else:
+#             raise ValueError
         
-        if url == badURL:
-            errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
-            bot.send_photo(chat_id=chat_id, photo=url)
-            bot.send_message(message.chat.id,errorString )
-        elif message.text == "/start" or message.text == "RESTART":
-            pass
-        else:
-            bot.send_photo(chat_id=chat_id, photo=url)
-            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-    except ValueError:
-        if msg.isalpha():
-            errorString = "Please use the buttons provided! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-        else:
-            errorString = "This input is not recognized! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-    except Exception:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+#         if url == badURL:
+#             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
+#             bot.send_photo(chat_id=chat_id, photo=url)
+#             bot.send_message(message.chat.id,errorString )
+#         elif message.text == "/start" or message.text == "RESTART":
+#             pass
+#         else:
+#             bot.send_photo(chat_id=chat_id, photo=url)
+#             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+#     except ValueError:
+#         if msg.isalpha():
+#             errorString = "Please use the buttons provided! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#         else:
+#             errorString = "This input is not recognized! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#     except Exception:
+#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
-@bot.message_handler(regexp="Quit")    
-def qFunc(message):
-    try:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
-    except Exception:
-        errorString = "Sorry something went wrong! Please press /start to try again!"
-        bot.send_message(message.chat.id,errorString)
+# @bot.message_handler(regexp="Quit")    
+# def qFunc(message, context):
+#     try:
+#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+#     except Exception:
+#         errorString = "Sorry something went wrong! Please press /start to try again!"
+#         bot.send_message(message.chat.id,errorString)
 
 
 #####################################################################################
@@ -312,14 +317,14 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(TOKEN)
+    updater = Updater(TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start"))
-    dp.add_handler(CommandHandler("help"))
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
 
 
 
