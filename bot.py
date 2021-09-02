@@ -167,7 +167,7 @@ def distanceCalculator(update, context):
         camp =  update.effective_message.text.lower()
         if update.effective_message.text == "QUIT":
             raise Exception
-        elif update.effective_message.text == "/start" or message.text == "RESTART":
+        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             start(update.effective_message)
         elif camp not in campMaps.keys():
             raise ValueError
@@ -311,6 +311,8 @@ def main():
     
     #message handling
     dp.add_handler(MessageHandler(Filters.location, currentLocation))
+    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator))
+
 
         # add handlers
     updater.start_webhook(listen="0.0.0.0",
