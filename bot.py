@@ -8,7 +8,7 @@ import geopy.distance
 from telegram import Location, KeyboardButton
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 from flask import Flask, request
-from telegram.ext import Updater
+from telegram.ext import Updater, CommandHandler, MessageHandler
 
 
 
@@ -102,7 +102,6 @@ campMaps = {
 
 
 
-updater = Updater(TOKEN)
 
 
 @bot.message_handler(commands=['help'])
@@ -307,9 +306,30 @@ def qFunc(message):
 
 
 
-# add handlers
-updater.start_webhook(listen="0.0.0.0",
-                      port=PORT,
-                      url_path=TOKEN,
-                      webhook_url="https://polar-chamber-36116.herokuapp.com/" + TOKEN)
-updater.idle()
+
+def main():
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    updater = Updater(TOKEN, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+
+
+
+        # add handlers
+    updater.start_webhook(listen="0.0.0.0",
+                        port=PORT,
+                        url_path=TOKEN,
+                        webhook_url="https://polar-chamber-36116.herokuapp.com/" + TOKEN)
+    updater.idle()
+
+
+if __name__ == '__main__':
+    main()
