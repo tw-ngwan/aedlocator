@@ -98,8 +98,7 @@ campMaps = {
 
 
 ####################################################################################
-@bot.message_handler(func=lambda msg: msg.text == "/start")
-@bot.message_handler(func=lambda msg: msg.text == "RESTART")
+
 def start(update, context):
     """Send a message when the command /start is issued."""
     try:
