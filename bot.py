@@ -8,7 +8,7 @@ import geopy.distance
 from telegram import Location, KeyboardButton
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 from flask import Flask, request
-from telegram.ext import Updater, CommandHandler, MessageHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 
 """
@@ -308,8 +308,9 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
-
-
+    
+    #message handling
+    dp.add_handler(MessageHandler(Filters.location, currentLocation))
 
         # add handlers
     updater.start_webhook(listen="0.0.0.0",
