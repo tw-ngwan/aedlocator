@@ -151,7 +151,7 @@ def currentLocation(update, context):
 
             
             msg = bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs)
-            bot.register_next_step_handler(msg, distanceCalculator)
+            #bot.register_next_step_handler(msg, distanceCalculator)
         else:
             raise ValueError
     except ValueError:
@@ -229,55 +229,55 @@ def distanceCalculator(update, context):
 
 
 # @bot.message_handler(func=checker)
-# def staticMap(message, context):
-#     try:
+def staticMap(update, context):
+    try:
        
-#         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+        locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-#         locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
-#                 campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
-#                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
+        locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
-#         msg = bot.reply_to(message, """\
-#         Which camp would you like a map for?
-#         """, reply_markup=locs)
-#         bot.register_next_step_handler(msg, returnImage)
-#     except Exception as e:
-#         bot.reply_to(message, 'oooops')
+        msg = bot.reply_to(update.effective_message, """\
+        Which camp would you like a map for?
+        """, reply_markup=locs)
+        bot.register_next_step_handler(msg, returnImage)
+    except Exception as e:
+        bot.reply_to(update.effective_message, 'oooops')
 
-# def returnImage(message):
-#     try:
-#         chat_id = message.chat.id
-#         msg = message.text.lower()
-#         url = ""
+def returnImage(update, context):
+    try:
+        chat_id = update.effective_message.chat.id
+        msg = update.effective_message.text.lower()
+        url = ""
 
-#         if message.text == "QUIT":
-#             raise Exception
-#         elif msg in campMaps.keys():
-#             url = campMaps[msg]
-#         elif message.text == "/start" or message.text == "RESTART":
-#             start(message)
-#         else:
-#             raise ValueError
+        if update.effective_message.text == "QUIT":
+            raise Exception
+        elif msg in campMaps.keys():
+            url = campMaps[msg]
+        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
+            start(update.effective_message)
+        else:
+            raise ValueError
         
-#         if url == badURL:
-#             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
-#             bot.send_photo(chat_id=chat_id, photo=url)
-#             bot.send_message(message.chat.id,errorString )
-#         elif message.text == "/start" or message.text == "RESTART":
-#             pass
-#         else:
-#             bot.send_photo(chat_id=chat_id, photo=url)
-#             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-#     except ValueError:
-#         if msg.isalpha():
-#             errorString = "Please use the buttons provided! Press /start to try again!"
-#             bot.send_message(message.chat.id,errorString)
-#         else:
-#             errorString = "This input is not recognized! Press /start to try again!"
-#             bot.send_message(message.chat.id,errorString)
-#     except Exception:
-#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        if url == badURL:
+            errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
+            bot.send_photo(chat_id=chat_id, photo=url)
+            bot.send_message(update.effective_message.chat.id,errorString )
+        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
+            pass
+        else:
+            bot.send_photo(chat_id=chat_id, photo=url)
+            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+    except ValueError:
+        if msg.isalpha():
+            errorString = "Please use the buttons provided! Press /start to try again!"
+            bot.send_message(update.effective_message.chat.id,errorString)
+        else:
+            errorString = "This input is not recognized! Press /start to try again!"
+            bot.send_message(update.effective_message.chat.id,errorString)
+    except Exception:
+        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
 # @bot.message_handler(regexp="Quit")    
 # def qFunc(message, context):
@@ -312,8 +312,9 @@ def main():
     startList = ["/start", "RESTART"]
     #message handling
     dp.add_handler(MessageHandler(Filters.location, currentLocation))
+    dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
     dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
-    dp.add_handler(MessageHandler(Filters.text(startList), start)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text(startList), start)) 
 
         # add handlers
     updater.start_webhook(listen="0.0.0.0",
