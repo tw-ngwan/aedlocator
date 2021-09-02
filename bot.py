@@ -159,16 +159,16 @@ def currentLocation(update, context):
 
 
 # #exception handling added for out of scope input
-def distanceCalculator(message):
+def distanceCalculator(update, context):
     try:
-        chat_id = message.chat.id
+        chat_id = update.effective_message.chat.id
         aed = aedDict[chat_id]
 
-        camp =  message.text.lower()
-        if message.text == "QUIT":
+        camp =  update.effective_message.text.lower()
+        if update.effective_message.text == "QUIT":
             raise Exception
-        elif message.text == "/start" or message.text == "RESTART":
-            start(message)
+        elif update.effective_message.text == "/start" or message.text == "RESTART":
+            start(update.effective_message)
         elif camp not in campMaps.keys():
             raise ValueError
         
@@ -183,37 +183,37 @@ def distanceCalculator(message):
                 if dist < minDist:
                     minDist = dist
             sortedDist = sorted(list(aed.aeds.keys()))
-            bot.send_message(message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
-            bot.send_chat_action(message.chat.id, "typing")
+            bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
+            bot.send_chat_action(update.effective_message.chat.id, "typing")
             sleep(3)
             counter = 0
             for keys in sortedDist:
                 if counter > 1: # to limit to the 2 closest AEDs
                     break
-                bot.send_location(message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
+                bot.send_location(update.effective_message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
                 sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-                bot.send_message(message.chat.id,sendString )
+                bot.send_message(update.effective_message.chat.id,sendString )
                 counter += 1
                 
                 sleep(0.5)
             finalString = "Stay Safe!"
             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-            bot.send_message(message.chat.id, finalString )
-        elif camp == "/start" or message.text == "RESTART":
+            bot.send_message(update.effective_message.chat.id, finalString )
+        elif camp == "/start" or update.effective_message.text == "RESTART":
             pass
         else:
-            bot.send_message(message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
+            bot.send_message(update.effective_message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
     
     #introducing exception handling if the input is not from the buttons
     except ValueError:
         if camp.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
+            bot.send_message(update.effective_message.chat.id,errorString)
         else:
             errorString = "This input is not recognized! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
+            bot.send_message(update.effective_message.chat.id,errorString)
     except Exception:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
 
 
