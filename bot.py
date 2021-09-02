@@ -96,7 +96,8 @@ campMaps = {
 
 
 ####################################################################################
-
+@bot.message_handler(func=lambda msg: msg.text == "/start")
+@bot.message_handler(func=lambda msg: msg.text == "RESTART")
 def start(update, context):
     """Send a message when the command /start is issued."""
     try:
@@ -163,88 +164,88 @@ def help(update, context):
 
     
 # #if location is not handled correctly, exception is now raised
-@bot.message_handler(content_types=['location'])
-def currentLocation(message):
-    try:
-        chat_id = message.chat.id
+# @bot.message_handler(content_types=['location'])
+# def currentLocation(message):
+#     try:
+#         chat_id = message.chat.id
        
-        if message.location:
-            aed = AED(message.location)
-            aedDict[chat_id] = aed
-            sendString = """
-            Which camp are you at?
-        """
-            locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+#         if message.location:
+#             aed = AED(message.location)
+#             aedDict[chat_id] = aed
+#             sendString = """
+#             Which camp are you at?
+#         """
+#             locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-            locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
-                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
-                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
+#             locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+#                 campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+#                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
             
-            msg = bot.send_message(message.chat.id,sendString, reply_markup=locs)
-            bot.register_next_step_handler(msg, distanceCalculator)
-        else:
-            raise ValueError
-    except ValueError:
-       bot.send_message(message.chat.id,"Could not get user location, press /start to try again!" )
+#             msg = bot.send_message(message.chat.id,sendString, reply_markup=locs)
+#             bot.register_next_step_handler(msg, distanceCalculator)
+#         else:
+#             raise ValueError
+#     except ValueError:
+#        bot.send_message(message.chat.id,"Could not get user location, press /start to try again!" )
 
 
-# #exception handling added for out of scope input
-def distanceCalculator(message):
-    try:
-        chat_id = message.chat.id
-        aed = aedDict[chat_id]
+# # #exception handling added for out of scope input
+# def distanceCalculator(message):
+#     try:
+#         chat_id = message.chat.id
+#         aed = aedDict[chat_id]
 
-        camp =  message.text.lower()
-        if message.text == "QUIT":
-            raise Exception
-        elif message.text == "/start" or message.text == "RESTART":
-            start(message)
-        elif camp not in campMaps.keys():
-            raise ValueError
+#         camp =  message.text.lower()
+#         if message.text == "QUIT":
+#             raise Exception
+#         elif message.text == "/start" or message.text == "RESTART":
+#             start(message)
+#         elif camp not in campMaps.keys():
+#             raise ValueError
         
         
-        if camp in locations.keys():
-            minDist = 100000000000
-            for coords in locations[camp].values():
-                dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+#         if camp in locations.keys():
+#             minDist = 100000000000
+#             for coords in locations[camp].values():
+#                 dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
                 
-                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
-                aed.aeds[dist] = coords
-                if dist < minDist:
-                    minDist = dist
-            sortedDist = sorted(list(aed.aeds.keys()))
-            bot.send_message(message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
-            bot.send_chat_action(message.chat.id, "typing")
-            sleep(3)
-            counter = 0
-            for keys in sortedDist:
-                if counter > 1: # to limit to the 2 closest AEDs
-                    break
-                bot.send_location(message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
-                sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-                bot.send_message(message.chat.id,sendString )
-                counter += 1
+#                 #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
+#                 aed.aeds[dist] = coords
+#                 if dist < minDist:
+#                     minDist = dist
+#             sortedDist = sorted(list(aed.aeds.keys()))
+#             bot.send_message(message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
+#             bot.send_chat_action(message.chat.id, "typing")
+#             sleep(3)
+#             counter = 0
+#             for keys in sortedDist:
+#                 if counter > 1: # to limit to the 2 closest AEDs
+#                     break
+#                 bot.send_location(message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
+#                 sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
+#                 bot.send_message(message.chat.id,sendString )
+#                 counter += 1
                 
-                sleep(0.5)
-            finalString = "Stay Safe!"
-            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-            bot.send_message(message.chat.id, finalString )
-        elif camp == "/start" or message.text == "RESTART":
-            pass
-        else:
-            bot.send_message(message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
+#                 sleep(0.5)
+#             finalString = "Stay Safe!"
+#             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+#             bot.send_message(message.chat.id, finalString )
+#         elif camp == "/start" or message.text == "RESTART":
+#             pass
+#         else:
+#             bot.send_message(message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
     
-    #introducing exception handling if the input is not from the buttons
-    except ValueError:
-        if camp.isalpha():
-            errorString = "Please use the buttons provided! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-        else:
-            errorString = "This input is not recognized! Press /start to try again!"
-            bot.send_message(message.chat.id,errorString)
-    except Exception:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+#     #introducing exception handling if the input is not from the buttons
+#     except ValueError:
+#         if camp.isalpha():
+#             errorString = "Please use the buttons provided! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#         else:
+#             errorString = "This input is not recognized! Press /start to try again!"
+#             bot.send_message(message.chat.id,errorString)
+#     except Exception:
+#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
 
 
