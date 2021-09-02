@@ -309,10 +309,11 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("help", help))
     
+    startList = ["/start", "RESTART"]
     #message handling
     dp.add_handler(MessageHandler(Filters.location, currentLocation))
-    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator))
-
+    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text(startList), start)) #does keys have to be a list?
 
         # add handlers
     updater.start_webhook(listen="0.0.0.0",
