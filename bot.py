@@ -29,7 +29,7 @@ bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
 
-DISTANCE, MAPS, IMAGES, SETSTATE = range(4)
+LOCATION, DISTANCE, MAPS, IMAGES = range(4)
 
 ####################################################################################
 #Global Variables
@@ -360,14 +360,14 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$')|Filters.location, set_state)],
-            #LOCATION: [MessageHandler(Filters.location, currentLocation)],
+            #SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$')|Filters.location, set_state)],
+            LOCATION: [MessageHandler(Filters.location, currentLocation)],
             DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
-            MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
-            IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)]
+            #MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
+            #IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)]
             
         },
-        fallbacks=[CommandHandler('cancel', qFunc)],
+        fallbacks=[CommandHandler('quit', qFunc)],
     )
     dp.add_handler(conv_handler)
     #add handlers
