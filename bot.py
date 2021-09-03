@@ -259,15 +259,19 @@ def staticMap(update, context):
 
 def returnImage(update, context):
     try:
+        bot.send_message(update.effective_message.chat.id,"I am in returnImage" )
+
         chat_id = update.effective_message.chat.id
-        msg = update.effective_message.text.lower()
+        msg = update.effective_message.text.replace(" ", "")
+        msg = msg.lower()
         url = ""
+        stri = "This is msg.lower(): " + msg
+        bot.send_message(update.effective_message.chat.id,stri )
 
         if update.effective_message.text == "QUIT":
             raise Exception
         elif update.effective_message.text in mapButtons.keys():
-            removeSpace = update.effective_message.text.replace(" ", "")
-            url = campMaps[removeSpace.lower()]
+            url = campMaps[msg]
         elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             start(update.effective_message)
         else:
