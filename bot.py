@@ -127,11 +127,12 @@ def set_state(update, context):
     user = update.message.from_user
     if update.message.text == "Nearest AED":
         STATE = LOCATION
+        currentLocation(update, context)
         #report(bot, update)
         return LOCATION
     elif update.message.text == 'Static Map':
         STATE = MAPS
-        #vmap(bot, update)
+        staticMap(update, context)
         return MAPS
     elif update.message.text == "RESTART":
         STATE = start
