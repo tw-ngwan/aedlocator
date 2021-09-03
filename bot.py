@@ -121,9 +121,11 @@ def set_state(update, context):
     """
     if update.message.location:
         currentLocation(update, context)
+        bot.send_message(update.effective_message.chat.id,"YOU CHOSE LOCATION" )
         return LOCATION
     elif update.message.text == 'Static Map':
         staticMap(update, context)
+        bot.send_message(update.effective_message.chat.id,"YOU CHOSE MAP" )
         return MAPS
     elif update.message.text == "RESTART":
         start(bot, context)
