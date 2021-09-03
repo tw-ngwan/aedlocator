@@ -125,7 +125,7 @@ def set_state(update, context):
     # Set state:
     global STATE
     user = update.message.from_user
-    if update.message.text == "Nearest AED":
+    if update.message.location:
         STATE = LOCATION
         currentLocation(update, context)
         #report(bot, update)
@@ -350,7 +350,7 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            SETSTATE: [MessageHandler(Filters.text("Static Map")|Filters.text("Nearest AED"), set_state)],
+            SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$'), set_state)],
             LOCATION: [MessageHandler(Filters.location, currentLocation)],
             DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
             MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
