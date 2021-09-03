@@ -48,7 +48,7 @@ campButtons = {
         "Quit" :telebot.types.KeyboardButton(text="RESTART")
 }
 mapButtons = {
-        "NSDC ":telebot.types.KeyboardButton(text='NSDC'),
+        "NSDC ":telebot.types.KeyboardButton(text='NSDC '),
         "NSC" : telebot.types.KeyboardButton(text='NSC'),
         "Mandai Hill" : telebot.types.KeyboardButton(text='Mandai Hill'),
         "KC2" : telebot.types.KeyboardButton(text='KC2'),
@@ -225,7 +225,7 @@ def distanceCalculator(update, context):
             errorString = "This input is not recognized! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
     except Exception:
-        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!!!")
 
 
 
