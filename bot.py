@@ -258,14 +258,14 @@ def staticMap(update, context):
 
 def returnImage(update, context):
     try:
-        bot.send_message(update.effective_message.chat.id,"I am in returnImage" )
+        #bot.send_message(update.effective_message.chat.id,"I am in returnImage" )
 
         chat_id = update.effective_message.chat.id
         msg = update.effective_message.text.replace(" ", "")
         msg = msg.lower()
         url = ""
-        stri = "This is msg.lower(): " + msg
-        bot.send_message(update.effective_message.chat.id,stri )
+        #stri = "This is msg.lower(): " + msg
+        #bot.send_message(update.effective_message.chat.id,stri )
 
         if update.effective_message.text == "QUIT":
             raise Exception
