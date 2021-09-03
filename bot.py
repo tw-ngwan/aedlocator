@@ -29,7 +29,7 @@ bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
 
-LOCATION, DISTANCE, MAPS, IMAGES = range(4)
+LOCATION, DISTANCE, MAPS, IMAGES, SETSTATE = range(5)
 
 ####################################################################################
 #Global Variables
@@ -112,23 +112,38 @@ If you click Nearest AED, the bot will request your location!
 Click the RESTART button at any time to restart the commands!!
         """
         bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
+        return SETSTATE
     except Exception:
         errorString = "Sorry something went wrong! Please press /start to try again!"
         bot.send_message(update.effective_message.chat_id,errorString)
 
 
-def help(update, context):
-    """Send a message when the command /help is issued."""
-    bot.send_message(update.effective_message.chat_id, """ 
-#     Welcome to AED Bot!
-#     If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
-
-# If you haven't used the bot in a while, just type in /start and the bot will restart
-
-# If you have any issues please contact 62FMD at 6AMB!
+def set_state(update, context):
+    """
+    Set option selected from menu.
+    """
+    # Set state:
+    global STATE
+    user = update.message.from_user
+    if update.message.text == "Nearest AED":
+        STATE = LOCATION
+        #report(bot, update)
+        return LOCATION
+    elif update.message.text == 'Static Map':
+        STATE = MAPS
+        #vmap(bot, update)
+        return MAPS
+    elif update.message.text == "RESTART":
+        STATE = start
+        start(bot, context)
+        return 
     
-#     """)
-    
+
+
+
+
+
+
     
 # #if location is not handled correctly, exception is now raised
 #@bot.message_handler(content_types=['location'])
@@ -282,13 +297,35 @@ def returnImage(update, context):
     except Exception:
         bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
+
+
+
+
+
+#####################################################################################
+
+
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    bot.send_message(update.effective_message.chat_id, """ 
+#     Welcome to AED Bot!
+#     If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
+
+# If you haven't used the bot in a while, just type in /start and the bot will restart
+
+# If you have any issues please contact 62FMD at 6AMB!
+    
+#     """)
+    
+
 @bot.message_handler(regexp="Quit")    
-def qFunc(message, context):
+def qFunc(update, context):
     try:
-        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        return ConversationHandler.END
     except Exception:
         errorString = "Sorry something went wrong! Please press /start to try again!"
-        bot.send_message(message.chat.id,errorString)
+        bot.send_message(update.effective_message.chat.id,errorString)
 
 
 #####################################################################################
@@ -312,10 +349,12 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
+            SETSTATE: [MessageHandler(Filters.text("Static Map")|Filters.text("Nearest AED"), set_state)],
             LOCATION: [MessageHandler(Filters.location, currentLocation)],
             DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
             MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
-            IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)],
+            IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)]
+            
         },
         fallbacks=[CommandHandler('cancel', qFunc)],
     )
