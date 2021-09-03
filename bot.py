@@ -126,14 +126,14 @@ Click the RESTART button at any time to restart the commands!!
 def help(update, context):
     """Send a message when the command /help is issued."""
     bot.send_message(update.effective_message.chat_id, """ 
-#     Welcome to AED Bot!
-#     If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
+Welcome to AED Bot!
+If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
 
-# If you haven't used the bot in a while, just type in /start and the bot will restart
+If you haven't used the bot in a while, just type in /start and the bot will restart
 
-# If you have any issues please contact 62FMD at 6AMB!
+If you have any issues please contact 62FMD at 6AMB!
     
-#     """)
+     """)
     
     
 # #if location is not handled correctly, exception is now raised
@@ -270,7 +270,6 @@ def main():
     #message handling
     dp.add_handler(MessageHandler(Filters.location, currentLocation))
     dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
-    #dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
     dp.add_handler(MessageHandler(Filters.text(startList), start)) 
     dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), returnImage)) #does keys have to be a list?
     dp.add_handler(MessageHandler(Filters.text, qFunc)) #does keys have to be a list?
