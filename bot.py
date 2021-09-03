@@ -29,7 +29,7 @@ bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
 
-LOCATION, DISTANCE, MAPS, IMAGES = range(4)
+SETSTATE, LOCATION, DISTANCE, MAPS, IMAGES = range(5)
 
 ####################################################################################
 #Global Variables
@@ -111,6 +111,7 @@ If you click Nearest AED, the bot will request your location!
 Click the RESTART button at any time to restart the commands!!
     """
     bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
+    return SETSTATE
     
 
 
@@ -118,20 +119,13 @@ def set_state(update, context):
     """
     Set option selected from menu.
     """
-    # Set state:
-    global STATE
-    user = update.message.from_user
     if update.message.location:
-        #STATE = LOCATION
         currentLocation(update, context)
-        #report(bot, update)
-        #return LOCATION
+        return LOCATION
     elif update.message.text == 'Static Map':
-        STATE = MAPS
         staticMap(update, context)
         return MAPS
     elif update.message.text == "RESTART":
-        STATE = start
         start(bot, context)
         return 
     
@@ -355,11 +349,11 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            #SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$')|Filters.location, set_state)],
+            SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$'), set_state)],
             LOCATION: [MessageHandler(Filters.location, currentLocation)],
             DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
-            #MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
-            #IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)]
+            MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
+            IMAGES: [MessageHandler(Filters.text(campButtons.keys()), returnImage)]
             
         },
         fallbacks=[CommandHandler('quit', qFunc)],
