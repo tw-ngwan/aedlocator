@@ -116,9 +116,9 @@ Click the RESTART button at any time to restart the commands!!
 
 
 def set_state(update, context):
-    """
-    Set option selected from menu.
-    """
+    # """
+    # Set option selected from menu.
+    # """
     if update.message.location:
         bot.send_message(update.effective_message.chat.id,"YOU CHOSE LOCATION" )
         currentLocation(update, context)
