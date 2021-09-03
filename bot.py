@@ -246,7 +246,7 @@ def staticMap(update, context):
        
         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-        locs.add(mapButtons["NSDC"], mapButtons["NSC"], mapButtons["Mandai Hill"],mapButtons["KC2"],\
+        locs.add(mapButtons["NSDC "], mapButtons["NSC"], mapButtons["Mandai Hill"],mapButtons["KC2"],\
                 mapButtons["KC3"],mapButtons["Mowbray"],mapButtons["Hendon"],\
                 mapButtons["Clementi"],mapButtons["Maju"],mapButtons["Gombak"],mapButtons["Gedong"], mapButtons["Quit"])
 
