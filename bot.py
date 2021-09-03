@@ -48,8 +48,8 @@ campButtons = {
         "Quit" :telebot.types.KeyboardButton(text="RESTART")
 }
 mapButtons = {
-        "NS DC":telebot.types.KeyboardButton(text='NS DC'),
-        "NSC" : telebot.types.KeyboardButton(text='NSC'),
+        "NS DC":telebot.types.KeyboardButton(text='NSDC'),
+        "NSC" : telebot.types.KeyboardButton(text='NSC '),
         "Mandai Hill" : telebot.types.KeyboardButton(text='Mandai Hill'),
         "KC2" : telebot.types.KeyboardButton(text='KC2'),
         "KC3" :telebot.types.KeyboardButton(text='KC3'),
