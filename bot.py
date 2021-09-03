@@ -183,72 +183,10 @@ def currentLocation(update, context):
        bot.send_message(update.effective_message.chat.id,"Could not get user location, press /start to try again!" )
 
 
-# #exception handling added for out of scope input
-def distanceCalculator(update, context):
-    try:
-        chat_id = update.effective_message.chat.id
-        aed = aedDict[chat_id]
-
-        camp =  update.effective_message.text.lower()
-        if update.effective_message.text == "QUIT":
-            raise Exception
-        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
-            start(update.effective_message)
-        elif camp not in campMaps.keys():
-            raise ValueError
-        
-        
-        if camp in locations.keys():
-            minDist = 100000000000
-            for coords in locations[camp].values():
-                dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
-                
-                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
-                aed.aeds[dist] = coords
-                if dist < minDist:
-                    minDist = dist
-            sortedDist = sorted(list(aed.aeds.keys()))
-            bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
-            bot.send_chat_action(update.effective_message.chat.id, "typing")
-            sleep(1)
-            counter = 0
-            for keys in sortedDist:
-                if counter > 1: # to limit to the 2 closest AEDs
-                    break
-                bot.send_location(update.effective_message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
-                sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-                bot.send_message(update.effective_message.chat.id,sendString )
-                counter += 1
-                
-                sleep(0.5)
-            finalString = "Stay Safe!"
-            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
-            bot.send_message(update.effective_message.chat.id, finalString )
-        elif camp == "/start" or update.effective_message.text == "RESTART":
-            pass
-        else:
-            bot.send_message(update.effective_message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
-    
-    #introducing exception handling if the input is not from the buttons
-    except ValueError:
-        if camp.isalpha():
-            errorString = "Please use the buttons provided! Press /start to try again!"
-            bot.send_message(update.effective_message.chat.id,errorString)
-        else:
-            errorString = "This input is not recognized! Press /start to try again!"
-            bot.send_message(update.effective_message.chat.id,errorString)
-    except Exception:
-        bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!!!")
-
-
-
 
 # #========================================================================
-
-# @bot.message_handler(func=checker)
 def staticMap(update, context):
     try:
-       
         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
         locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
@@ -264,14 +202,10 @@ def staticMap(update, context):
 
 def returnImage(update, context):
     try:
-        #bot.send_message(update.effective_message.chat.id,"I am in returnImage" )
 
         chat_id = update.effective_message.chat.id
-        msg = update.effective_message.text.replace(" ", "")
-        msg = msg.lower()
+        msg = update.effective_message.text.lower()
         url = ""
-        #stri = "This is msg.lower(): " + msg
-        #bot.send_message(update.effective_message.chat.id,stri )
 
         if update.effective_message.text == "QUIT":
             raise Exception
@@ -303,12 +237,12 @@ def returnImage(update, context):
         bot.send_message(update.effective_message.chat.id,st)
 
 # @bot.message_handler(regexp="Quit")    
-# def qFunc(message, context):
-#     try:
-#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
-#     except Exception:
-#         errorString = "Sorry something went wrong! Please press /start to try again!"
-#         bot.send_message(message.chat.id,errorString)
+def qFunc(update, context):
+    try:
+        bot.send_message(update.effective_message.chat.id,"Unrecognized Input! Please press /start to try again!")
+    except Exception:
+        errorString = "Sorry something went wrong! Please press /start to try again!"
+        bot.send_message(update.effective_message.chat.id,errorString)
 
 
 #####################################################################################
@@ -339,6 +273,7 @@ def main():
     #dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
     dp.add_handler(MessageHandler(Filters.text(startList), start)) 
     dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), returnImage)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text, qFunc)) #does keys have to be a list?
 
     # add handlers
     updater.start_webhook(listen="0.0.0.0",
