@@ -8,7 +8,7 @@ import geopy.distance
 from telegram import Location, KeyboardButton
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 from flask import Flask, request
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
 
 """
@@ -29,6 +29,7 @@ bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
 
+LOCATION, DISTANCE, MAPS, IMAGES = range(4)
 
 ####################################################################################
 #Global Variables
@@ -96,8 +97,6 @@ campMaps = {
 
 
 ####################################################################################
-@bot.message_handler(func=lambda update: update.effective_message.text == "/start") #these dont seem to work
-@bot.message_handler(func=lambda update: update.effective_message.text == "RESTART") #these dont seem to work
 def start(update, context):
     """Send a message when the command /start is issued."""
     try:
@@ -132,7 +131,7 @@ def help(update, context):
     
     
 # #if location is not handled correctly, exception is now raised
-@bot.message_handler(content_types=['location'])
+#@bot.message_handler(content_types=['location'])
 def currentLocation(update, context):
     try:
         chat_id = update.effective_message.chat_id
@@ -150,10 +149,11 @@ def currentLocation(update, context):
                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
             
-            msg = bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs)
+            bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs)
             #bot.register_next_step_handler(msg, distanceCalculator)
         else:
             raise ValueError
+        return DISTANCE
     except ValueError:
        bot.send_message(update.effective_message.chat.id,"Could not get user location, press /start to try again!" )
 
@@ -185,7 +185,7 @@ def distanceCalculator(update, context):
             sortedDist = sorted(list(aed.aeds.keys()))
             bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
             bot.send_chat_action(update.effective_message.chat.id, "typing")
-            sleep(3)
+            sleep(1)
             counter = 0
             for keys in sortedDist:
                 if counter > 1: # to limit to the 2 closest AEDs
@@ -203,7 +203,8 @@ def distanceCalculator(update, context):
             pass
         else:
             bot.send_message(update.effective_message.chat.id,"Sorry, we currently don't have the coordinates of the AEDs in this camp! Press /start to try again!" )
-    
+
+        return ConversationHandler.END
     #introducing exception handling if the input is not from the buttons
     except ValueError:
         if camp.isalpha():
@@ -241,7 +242,8 @@ def staticMap(update, context):
         msg = bot.reply_to(update.effective_message, """\
         Which camp would you like a map for?
         """, reply_markup=locs)
-        bot.register_next_step_handler(msg, returnImage)
+        #bot.register_next_step_handler(msg, returnImage)
+        return IMAGES
     except Exception as e:
         bot.reply_to(update.effective_message, 'oooops')
 
@@ -269,6 +271,7 @@ def returnImage(update, context):
         else:
             bot.send_photo(chat_id=chat_id, photo=url)
             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+        return ConversationHandler.END
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
@@ -279,18 +282,18 @@ def returnImage(update, context):
     except Exception:
         bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
 
-# @bot.message_handler(regexp="Quit")    
-# def qFunc(message, context):
-#     try:
-#         bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
-#     except Exception:
-#         errorString = "Sorry something went wrong! Please press /start to try again!"
-#         bot.send_message(message.chat.id,errorString)
+@bot.message_handler(regexp="Quit")    
+def qFunc(message, context):
+    try:
+        bot.send_message(message.chat.id,"Have a wonderful day! Please press /start to try again!")
+    except Exception:
+        errorString = "Sorry something went wrong! Please press /start to try again!"
+        bot.send_message(message.chat.id,errorString)
 
 
 #####################################################################################
 
-#bot.polling()
+
 
 
 
@@ -305,18 +308,19 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("help", help))
-    
-    startList = ["/start", "RESTART"]
-    #message handling
-    dp.add_handler(MessageHandler(Filters.location, currentLocation))
-    dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
-    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
-    dp.add_handler(MessageHandler(Filters.text(startList), start)) 
-
-        # add handlers
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            LOCATION: [MessageHandler(Filters.location, currentLocation)],
+            DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
+            MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
+            IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)],
+        },
+        fallbacks=[CommandHandler('cancel', qFunc)],
+    )
+    dp.add_handler(conv_handler)
+    #add handlers
     updater.start_webhook(listen="0.0.0.0",
                         port=PORT,
                         url_path=TOKEN,
