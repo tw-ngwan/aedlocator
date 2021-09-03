@@ -150,11 +150,17 @@ def currentLocation(update, context):
             for coords in locations.values():
                 dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
                 
-                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
+                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
                 aed.aeds[dist] = coords
                 if dist < minDist:
                     minDist = dist
             sortedDist = sorted(list(aed.aeds.keys()))
+            if sortedDist[0] > 1000:
+                bot.send_chat_action(update.effective_message.chat.id, "typing")
+                sleep(0.5)
+                bot.send_message(update.effective_message.chat.id,"The nearest AED is more than 1000m away! This probably means the camp you are in is not supported yet! Thanks for your patience!!" )
+                sleep(2)
+                
             bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
             bot.send_chat_action(update.effective_message.chat.id, "typing")
             sleep(0.5)
