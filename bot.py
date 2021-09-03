@@ -98,20 +98,19 @@ campMaps = {
 
 ####################################################################################
 def start(update, context):
-    """Send a message when the command /start is issued."""
-    try:
-        loc = telebot.types.KeyboardButton(text='Nearest AED', request_location=True)
-        not_loc = telebot.types.KeyboardButton(text='Static Map')
-        quit = campButtons["Quit"]
+    #"""Send a message when the command /start is issued."""
+    loc = telebot.types.KeyboardButton(text='Nearest AED', request_location=True)
+    not_loc = telebot.types.KeyboardButton(text='Static Map')
+    quit = campButtons["Quit"]
 
-        start = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
-        start.add(loc, not_loc, quit)
-        welcomeString = """
-        Hello, would you like to see your nearest AED or a static map?
+    start = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+    start.add(loc, not_loc, quit)
+    welcomeString = """
+    Hello, would you like to see your nearest AED or a static map?
 If you click Nearest AED, the bot will request your location!
 Click the RESTART button at any time to restart the commands!!
-        """
-        bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
+    """
+    bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
     
 
 
