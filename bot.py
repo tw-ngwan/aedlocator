@@ -120,12 +120,12 @@ def set_state(update, context):
     Set option selected from menu.
     """
     if update.message.location:
-        currentLocation(update, context)
         bot.send_message(update.effective_message.chat.id,"YOU CHOSE LOCATION" )
+        currentLocation(update, context)
         return LOCATION
     elif update.message.text == 'Static Map':
-        staticMap(update, context)
         bot.send_message(update.effective_message.chat.id,"YOU CHOSE MAP" )
+        staticMap(update, context)
         return MAPS
     elif update.message.text == "RESTART":
         start(bot, context)
