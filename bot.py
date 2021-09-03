@@ -130,7 +130,8 @@ def set_state(update, context):
     elif update.message.text == "RESTART":
         start(bot, context)
         return 
-    
+    else:
+        bot.send_message(update.effective_message.chat.id,"NOTHING CHOSEN" )
 
 
 
