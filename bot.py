@@ -29,7 +29,7 @@ bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
 
-LOCATION, DISTANCE, MAPS, IMAGES, SETSTATE = range(5)
+DISTANCE, MAPS, IMAGES, SETSTATE = range(4)
 
 ####################################################################################
 #Global Variables
@@ -116,6 +116,7 @@ Click the RESTART button at any time to restart the commands!!
     except Exception:
         errorString = "Sorry something went wrong! Please press /start to try again!"
         bot.send_message(update.effective_message.chat_id,errorString)
+        return ConversationHandler.END
 
 
 def set_state(update, context):
@@ -126,10 +127,10 @@ def set_state(update, context):
     global STATE
     user = update.message.from_user
     if update.message.location:
-        STATE = LOCATION
+        #STATE = LOCATION
         currentLocation(update, context)
         #report(bot, update)
-        return LOCATION
+        #return LOCATION
     elif update.message.text == 'Static Map':
         STATE = MAPS
         staticMap(update, context)
@@ -172,6 +173,7 @@ def currentLocation(update, context):
         return DISTANCE
     except ValueError:
        bot.send_message(update.effective_message.chat.id,"Could not get user location, press /start to try again!" )
+       return ConversationHandler.END
 
 
 # #exception handling added for out of scope input
@@ -226,11 +228,14 @@ def distanceCalculator(update, context):
         if camp.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
+            return ConversationHandler.END
         else:
             errorString = "This input is not recognized! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
+            return ConversationHandler.END
     except Exception:
         bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        return ConversationHandler.END
 
 
 
@@ -262,6 +267,7 @@ def staticMap(update, context):
         return IMAGES
     except Exception as e:
         bot.reply_to(update.effective_message, 'oooops')
+        return ConversationHandler.END
 
 def returnImage(update, context):
     try:
@@ -292,11 +298,14 @@ def returnImage(update, context):
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
+            return ConversationHandler.END
         else:
             errorString = "This input is not recognized! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
+            return ConversationHandler.END
     except Exception:
         bot.send_message(update.effective_message.chat.id,"Have a wonderful day! Please press /start to try again!")
+        return ConversationHandler.END
 
 
 
@@ -327,6 +336,7 @@ def qFunc(update, context):
     except Exception:
         errorString = "Sorry something went wrong! Please press /start to try again!"
         bot.send_message(update.effective_message.chat.id,errorString)
+        return ConversationHandler.END
 
 
 #####################################################################################
@@ -350,8 +360,8 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$'), set_state)],
-            LOCATION: [MessageHandler(Filters.location, currentLocation)],
+            SETSTATE: [MessageHandler(Filters.regex('^(Nearest AED|Static Map|RESTART)$')|Filters.location, set_state)],
+            #LOCATION: [MessageHandler(Filters.location, currentLocation)],
             DISTANCE: [MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)],
             MAPS: [MessageHandler(Filters.text("Static Map"), staticMap)],
             IMAGES: [MessageHandler(Filters.text & ~Filters.command, returnImage)]
