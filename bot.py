@@ -68,24 +68,32 @@ class AED:
         self.latitude = location.latitude
         self.longitude = location.longitude
         self.aeds = {}
-        
-       
 
 locations = {
-    "nsdc": {
-        1: (1.4055524, 103.8182829),
-        2: (1.4067986, 103.8192924),
-        3: (1.4091958,103.8186530)
 
-    }
-    #add the rest of the coordinates of other camps in this format
-    # "campName": {
-    # num: (lat, lon),
-    # num: (lat,lon)
-    # }
+    1: (1.4055524, 103.8182829), #NSDC
+    2: (1.4067986, 103.8192924), #NSDC
+    3: (1.4091958,103.8186530) #NSDC
 
-    #campName must match the script as shows in campMaps
 }
+
+       
+
+# locations = {
+#     "nsdc": {
+#         1: (1.4055524, 103.8182829),
+#         2: (1.4067986, 103.8192924),
+#         3: (1.4091958,103.8186530)
+
+#     }
+#     #add the rest of the coordinates of other camps in this format
+#     # "campName": {
+#     # num: (lat, lon),
+#     # num: (lat,lon)
+#     # }
+
+#     #campName must match the script as shows in campMaps
+# }
 
 #using badURL as a way of showing that a map is not available
 badURL = "https://lh3.googleusercontent.com/m61vTtkjihiwIJ_PEnVPEKfd8Yx1FsoGcCzcrx0A5SJjZtnpu7h61HB-viz0K4JpBnK2QAf0KRfN8AA-spL_C6SIf-tMu4o3x5W6RMuG37RXP4X4COk6QRrE0ylLQJYVPLJ3-G3wQC5MQkwCcksHJfTq2UCYxKdPlSdy5pzb6m5g7Z2pot_z8_uxssfM0FjPmQ9EpprG_g_3wZ1hwp1-iEr3_RYnZUt7YzfaDDFWMlElGVCwfJ6dbzqD2NCNTGlHn_webljEdtswpUQx-2H2EHxBtlU03_ey4fKz0rGCUhN2ryyauTfdTzfvsiw6WB2Bz5uency7qEqA8EiooqZwVgRvDFOpPp8tTEZLI7JnErd_dqwrDr-3nJLdTyEntpGSlKlKBdbl4o6R1-JysFom6VcjAPW9Y1o-ZKOwoWhvVkOFHLad87PyU6_N8cBY_5WiaTbFs5Nrjl_sY84ViBp_lx4MOaW6xpjS9evotqJ2HJcen5rPGTEz3o89v2evb8nKVfqnI-M2cnTSd9qN6M8aqvz8K1XtI_ts61wVbVNCM4S1UoohWTQB0MYHkAeljkzK7unLavErhZSajtRKgfHhfIfbPK-eHHyXFxbqQ_qFCAki9FCfUT79zd80TFURjb8DlcT0dBOtyIG75D8_cCkwG2JV4_Y3M1N77K0EOfDi80m51aHxfW6znaHBob_1em6qZxBLBQadGBTQvCj_jOWEVcgOsg=w800-h399-no?authuser=1"
@@ -152,18 +160,32 @@ def currentLocation(update, context):
         if update.effective_message.location:
             aed = AED(update.effective_message.location)
             aedDict[chat_id] = aed
-            sendString = """
-            Which camp are you at?
-        """
-            locs1 = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
-   
-            locs1.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
-                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
-                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
-
             
-            bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs1)
-            #bot.register_next_step_handler(msg, distanceCalculator)
+            minDist = 100000000000
+            for coords in locations.values():
+                dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+                
+                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m
+                aed.aeds[dist] = coords
+                if dist < minDist:
+                    minDist = dist
+            sortedDist = sorted(list(aed.aeds.keys()))
+            bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
+            bot.send_chat_action(update.effective_message.chat.id, "typing")
+            sleep(0.5)
+            counter = 0
+            for keys in sortedDist:
+                if counter > 1: # to limit to the 2 closest AEDs
+                    break
+                bot.send_location(update.effective_message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
+                sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
+                bot.send_message(update.effective_message.chat.id,sendString )
+                counter += 1
+                
+            finalString = "Stay Safe!"
+            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+            bot.send_message(update.effective_message.chat.id, finalString )
+            
         else:
             raise ValueError
     except ValueError:
@@ -232,23 +254,15 @@ def distanceCalculator(update, context):
 
 # #========================================================================
 
-
-# def checker (message):
-#     if message.text == "Static Map" and message.content_type == 'text':
-#         return True
-#     else:
-#         return False
-
-
 # @bot.message_handler(func=checker)
 def staticMap(update, context):
     try:
        
         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-        locs.add(mapButtons["NS DC"], mapButtons["NSC"], mapButtons["Mandai Hill"],mapButtons["KC2"],\
-                mapButtons["KC3"],mapButtons["Mowbray"],mapButtons["Hendon"],\
-                mapButtons["Clementi"],mapButtons["Maju"],mapButtons["Gombak"],mapButtons["Gedong"], mapButtons["Quit"])
+        locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+                campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
         msg = bot.reply_to(update.effective_message, """\
         Which camp would you like a map for?
@@ -331,9 +345,9 @@ def main():
     #message handling
     dp.add_handler(MessageHandler(Filters.location, currentLocation))
     dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
-    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
+    #dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), distanceCalculator)) #does keys have to be a list?
     dp.add_handler(MessageHandler(Filters.text(startList), start)) 
-    dp.add_handler(MessageHandler(Filters.text(mapButtons.keys()), returnImage)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), returnImage)) #does keys have to be a list?
 
     # add handlers
     updater.start_webhook(listen="0.0.0.0",
