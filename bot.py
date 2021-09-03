@@ -267,7 +267,7 @@ def returnImage(update, context):
             raise Exception
         elif update.effective_message.text in mapButtons.keys():
             removeSpace = update.effective_message.text.replace(" ", "")
-            url = campMaps[removeSpace]
+            url = campMaps[removeSpace.lower()]
         elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             start(update.effective_message)
         else:
