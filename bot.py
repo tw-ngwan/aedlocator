@@ -256,7 +256,7 @@ def staticMap(update, context):
         Which camp would you like a map for?
         """, reply_markup=locs)
         #bot.register_next_step_handler(msg, returnImage)
-        return returnImage(msg, context)
+        returnImage(msg, context)
     except Exception as e:
         bot.reply_to(update.effective_message, 'oooops')
         return ConversationHandler.END
