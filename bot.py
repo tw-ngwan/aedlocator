@@ -290,7 +290,7 @@ def returnImage(update, context):
             errorString = "This input is not recognized! Press /start to try again!"
             bot.send_message(update.effective_message.chat.id,errorString)
     except Exception:
-        st = update.effective_message.text.replace(" ", "").lower
+        st = update.effective_message.text.replace(" ", "").lower()
         bot.send_message(update.effective_message.chat.id,st)
 
 # @bot.message_handler(regexp="Quit")    
