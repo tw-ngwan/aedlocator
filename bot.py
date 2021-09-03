@@ -47,21 +47,6 @@ campButtons = {
         "Gedong" :telebot.types.KeyboardButton(text='Gedong'),
         "Quit" :telebot.types.KeyboardButton(text="RESTART")
 }
-mapButtons = {
-        "NS DC":telebot.types.KeyboardButton(text='NSDC'),
-        "NSC" : telebot.types.KeyboardButton(text='NSC '),
-        "Mandai Hill" : telebot.types.KeyboardButton(text='Mandai Hill'),
-        "KC2" : telebot.types.KeyboardButton(text='KC2'),
-        "KC3" :telebot.types.KeyboardButton(text='KC3'),
-        "Mowbray" :telebot.types.KeyboardButton(text='Mowbray'),
-        "Hendon" :telebot.types.KeyboardButton(text='Hendon'),
-        "Clementi" :telebot.types.KeyboardButton(text='Clementi' ),
-        "Maju" :telebot.types.KeyboardButton(text='Maju'),
-        "Gombak" :telebot.types.KeyboardButton(text='Gombak'),
-        "Gedong" :telebot.types.KeyboardButton(text='Gedong'),
-        "Quit" :telebot.types.KeyboardButton(text="RESTART")
-}
-
 
 class AED:
     def __init__(self, location): #initialized with the coordinates of a location
@@ -284,7 +269,7 @@ def returnImage(update, context):
 
         if update.effective_message.text == "QUIT":
             raise Exception
-        elif update.effective_message.text in mapButtons.keys():
+        elif update.effective_message.text in campButtons.keys():
             url = campMaps[msg]
         elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             start(update.effective_message)
