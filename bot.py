@@ -112,11 +112,7 @@ If you click Nearest AED, the bot will request your location!
 Click the RESTART button at any time to restart the commands!!
         """
         bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
-        return SETSTATE
-    except Exception:
-        errorString = "Sorry something went wrong! Please press /start to try again!"
-        bot.send_message(update.effective_message.chat_id,errorString)
-        return ConversationHandler.END
+    
 
 
 def set_state(update, context):
