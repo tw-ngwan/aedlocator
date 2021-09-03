@@ -48,7 +48,7 @@ campButtons = {
         "Quit" :telebot.types.KeyboardButton(text="RESTART")
 }
 mapButtons = {
-        "NSDC ":telebot.types.KeyboardButton(text='NSDC '),
+        "NS DC ":telebot.types.KeyboardButton(text='NS DC '),
         "NSC" : telebot.types.KeyboardButton(text='NSC'),
         "Mandai Hill" : telebot.types.KeyboardButton(text='Mandai Hill'),
         "KC2" : telebot.types.KeyboardButton(text='KC2'),
@@ -155,14 +155,14 @@ def currentLocation(update, context):
             sendString = """
             Which camp are you at?
         """
-            locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+            locs1 = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-            locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+            locs1.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
                 campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
                 campButtons["Clementi"],campButtons["Maju"],campButtons["Gombak"],campButtons["Gedong"], campButtons["Quit"])
 
             
-            bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs)
+            bot.send_message(update.effective_message.chat.id,sendString, reply_markup=locs1)
             #bot.register_next_step_handler(msg, distanceCalculator)
         else:
             raise ValueError
@@ -246,7 +246,7 @@ def staticMap(update, context):
        
         locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
    
-        locs.add(mapButtons["NSDC "], mapButtons["NSC"], mapButtons["Mandai Hill"],mapButtons["KC2"],\
+        locs.add(mapButtons["NS DC "], mapButtons["NSC"], mapButtons["Mandai Hill"],mapButtons["KC2"],\
                 mapButtons["KC3"],mapButtons["Mowbray"],mapButtons["Hendon"],\
                 mapButtons["Clementi"],mapButtons["Maju"],mapButtons["Gombak"],mapButtons["Gedong"], mapButtons["Quit"])
 
