@@ -54,13 +54,64 @@ class AED:
         self.longitude = location.longitude
         self.aeds = {}
 
-locations = {
-
-    1: (1.4055524, 103.8182829), #NSDC
-    2: (1.4067986, 103.8192924), #NSDC
-    3: (1.4091958,103.8186530) #NSDC
-
-}
+locations = [
+    #NSDC
+    (1.4055524, 103.8182829), 
+    (1.4067986, 103.8192924), 
+    (1.4091958,103.8186530), 
+    #ALB
+    (1.3733841, 103.7185513), 
+    (1.3731199, 103.7185995), 
+    (1.3740186, 103.7183032),
+    #Mandai Hill
+    (1.4075018, 103.7673343),
+    (1.4079942, 103.7671606),
+    (1.4074944, 103.7684431),
+    (1.4091898, 103.7676592),
+    (1.4088593, 103.7677293),
+    (1.4096104, 103.7686224),
+    (1.4087219, 103.7685064),
+    (1.4081162, 103.7690999),
+    (1.4084417, 103.7691257),
+    (1.4086788, 103.7691976),
+    (1.4087795, 103.7691123),
+    (1.4095551, 103.7694821),
+    (1.4091626, 103.7703323),
+    #KC2
+    (1.3986304, 103.7425889),
+    (1.3999117, 103.7412057),
+    (1.4009418, 103.7424940),
+    (1.4006324, 103.7421125),
+    (1.4005818, 103.7409229),
+    (1.4005359, 103.7383051),
+    (1.3998602, 103.7378629),
+    (1.4005228, 103.7374267),
+    (1.3992575, 103.7373905),
+    (1.4021645, 103.7390645),
+    #KC3
+    (1.4056738, 103.7410902),
+    (1.4065033, 103.7405924),
+    (1.4074211, 103.7404566),
+    (1.4056389, 103.7401323),
+    (1.4055186, 103.7394698),
+    (1.4059644, 103.7394812),
+    (1.4074790, 103.7392113),
+    (1.4057371, 103.7384254),
+    (1.4062292, 103.7383980),
+    (1.4068435, 103.7379487),
+    (1.4078403, 103.7383591),
+    (1.4083719, 103.7383527),
+    (1.4090768, 103.7384053),
+    (1.4099070, 103.7383845),
+    (1.4056124, 103.7368765),
+    (1.4087782, 103.7368523),
+    (1.4093269, 103.7368191),
+    (1.4101430, 103.7371480),
+    (1.4060998, 103.7359890),
+    (1.4089820, 103.7359364),
+    (1.4083223, 103.7347391),
+    (1.4079724, 103.7332749)
+]
 
        
 
@@ -147,7 +198,7 @@ def currentLocation(update, context):
             aedDict[chat_id] = aed
             
             minDist = 100000000000
-            for coords in locations.values():
+            for coords in locations:
                 dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
                 
                 #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
@@ -159,7 +210,7 @@ def currentLocation(update, context):
                 bot.send_chat_action(update.effective_message.chat.id, "typing")
                 sleep(0.5)
                 bot.send_message(update.effective_message.chat.id,"The nearest AED is more than 1000m away! This probably means the camp you are in is not supported yet! Thanks for your patience!!" )
-                sleep(2)
+                sleep(1)
                 
             bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
             bot.send_chat_action(update.effective_message.chat.id, "typing")
