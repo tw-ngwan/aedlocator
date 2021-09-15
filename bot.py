@@ -24,7 +24,7 @@ Issues to solve for
 """
 
 # API_key = os.environ.get('aedAPI_KEY')
-TOKEN = '1925685631:AAHWdFKf07_NjwHa3dbnlGp4i42a00ikt_8'
+TOKEN = os.environ.get('TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
 PORT = int(os.environ.get('PORT', 8443))
