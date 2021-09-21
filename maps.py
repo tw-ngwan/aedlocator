@@ -3,13 +3,13 @@ badURL = "https://lh3.googleusercontent.com/m61vTtkjihiwIJ_PEnVPEKfd8Yx1FsoGcCzc
 campMaps = {
     "nsdc": "map/nsdc.jpg",
     "nsc": badURL,
-    "mandai hill":"/map/mandai.jpg",
-    "kc2":"/map/kc2.jpg",
-    "kc3" :"/map/kc3.jpg",
+    "mandai hill":"map/mandai.jpg",
+    "kc2":"map/kc2.jpg",
+    "kc3" :"map/kc3.jpg",
     "mowbray": badURL,
     "hendon":badURL,
-    "clementi":"/map/clementi.jpg",
+    "clementi":"map/clementi.jpg",
     "maju":badURL,
-    "alb":"/map/alb.jpg",
+    "alb":"map/alb.jpg",
     "gedong":badURL
 }
