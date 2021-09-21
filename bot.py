@@ -167,7 +167,7 @@ def returnImage(update, context):
         else:
             #bot.send_photo(chat_id=chat_id, photo=url)
             print(url)
-            #bot.send_photo(chat_id, photo=open('~/map/nsdc.jpg', 'rb'))
+            bot.send_photo(chat_id, photo=open('map/nsdc.jpg', 'rb'))
             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
     except ValueError:
         if msg.isalpha():
