@@ -15,19 +15,16 @@ from telegram import Location, KeyboardButton
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 from flask import Flask, request
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import logging
+
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
 
 
-"""
-Issues to solve for
-1. If for some reason the input is not one of the two buttons
-    a. Static Map:
-        1. exception handling for input is not robust
-    b. Nearest AED:
-        2. exception handling for input is not robust
-
-
-
-"""
 
 # API_key = os.environ.get('aedAPI_KEY')
 TOKEN = os.environ.get('TOKEN')
@@ -180,7 +177,7 @@ def returnImage(update, context):
             bot.send_message(update.effective_message.chat.id,errorString)
     except Exception:
         st = update.effective_message.text.replace(" ", "").lower()
-        bot.send_message(update.effective_message.chat.id,st)
+        bot.send_message(update.effective_message.chat.id,"except")
 
 # @bot.message_handler(regexp="Quit")    
 def qFunc(update, context):
