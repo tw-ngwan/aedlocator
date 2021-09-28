@@ -147,27 +147,28 @@ def returnImage(update, context):
 
         chat_id = update.effective_message.chat.id
         msg = update.effective_message.text.lower()
+        image_path = ''
         url = ""
 
         if update.effective_message.text == "QUIT":
             raise Exception
         elif update.effective_message.text in campButtons.keys():
-            url = campMaps[msg]
+            image_path = campMaps[msg]['image']
+            url = campMaps[msg]['url']
         elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             start(update.effective_message)
         else:
             raise ValueError
         
-        if url == badURL:
+        if image_path == badURL:
             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
-            bot.send_photo(chat_id=chat_id, photo=url)
+            bot.send_photo(chat_id=chat_id, photo=image_path)
             bot.send_message(update.effective_message.chat.id,errorString )
         elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             pass
         else:
-            #bot.send_photo(chat_id=chat_id, photo=url)
-            #print(url)
-            bot.send_photo(chat_id, photo=open(url, 'rb'))
+            bot.send_photo(chat_id, photo=open(image_path, 'rb'))
+            bot.send_message(chat_id, f"You can find the map at the following link: {url}")
             bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
     except ValueError:
         if msg.isalpha():
