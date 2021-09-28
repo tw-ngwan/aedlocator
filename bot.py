@@ -217,7 +217,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
     dp.add_handler(MessageHandler(Filters.text(startList), start)) 
     dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), returnImage)) #does keys have to be a list?
-    dp.add_handler(MessageHandler(Filters.text, qFunc)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text, qFunc)) 
 
     # add handlers
     updater.start_webhook(listen="0.0.0.0",

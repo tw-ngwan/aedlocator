@@ -2,23 +2,23 @@
 badURL = "map/badurl.png"
 campMaps = {
     "nsdc": {
-        "image":"map/nsdc.jpg",
+        "image":"map/nsdc.jpeg",
         "url":"https://www.google.com/maps/d/u/0/edit?mid=1phnLuo0ND3qP41d4YMunb8Di8MiVLDKs&usp=sharing"
     },
     "nsc":{
-        "image":badURL,
+        "image":"map/nsc.jpeg",
         "url": "https://www.google.com/maps/d/u/0/edit?mid=12PhVQMj8NOQRCMB74FUGHhTFD0K5_Unc&usp=sharing"
     },
     "mandai hill":{
-        "image":"map/mandai.jpg",
+        "image":"map/mandai.jpeg",
         "url": "https://www.google.com/maps/d/u/0/edit?mid=1wqFIXwVx1-1BGQl0edYe5lv888CAv20-&usp=sharing"
     },
     "kc2":{
-        "image":"map/kc2.jpg",
+        "image":"map/kc2.jpeg",
         "url":"https://www.google.com/maps/d/u/0/edit?mid=1MWaSN8eiyUc0jHFPgbBxErb6CdJZh5fa&usp=sharing"
     },
     "kc3" :{
-        "image":"map/kc3.jpg",
+        "image":"map/kc3.jpeg",
         "url":"https://www.google.com/maps/d/u/0/edit?mid=1vQ2Y_91Wu8CeavGSaaeKA0uuqjJX2cVt&usp=sharing"
     },
     "mowbray": {
@@ -30,7 +30,7 @@ campMaps = {
         "url":"No URL currently available"
     },
     "clementi":{
-        "image":"map/clementi.jpg",
+        "image":"map/clementi.jpeg",
         "url":"https://www.google.com/maps/d/u/0/edit?mid=1TmcifTHppyrzrLYLiserMk3zHsbdB4su&usp=sharing"
     },
     "maju":{
@@ -38,7 +38,7 @@ campMaps = {
         "url":"No URL currently available"
     },
     "alb":{
-        "image":"map/alb.jpg",
+        "image":"map/alb.jpeg",
         "url": "https://www.google.com/maps/d/u/0/edit?mid=1Y2-mAAV_oYzsYVxlfJv_E7psRtbXY0tx&usp=sharing"
     },
     "gedong":{
