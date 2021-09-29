@@ -71,7 +71,6 @@ def state_checker(update_obj, context):
         msg = update_obj.message
         logger.info(msg)
         if msg.text == "Static Maps":
-            logger.info("in the if")
             static_map(update_obj, context)
             return IMAGE 
         elif msg.location:
@@ -124,8 +123,8 @@ def currentLocation(update_obj, context):
         finalString = "Stay Safe!"
         update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
         update_obj.message.reply_text(finalString)
-    except ValueError:
-       update_obj.message.reply_text("lol")
+    except ValueError as elif condition:
+       update_obj.message.reply_text(f"location exception: {e}")
 
 
 
@@ -140,7 +139,7 @@ def static_map(update_obj, context):
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
         return IMAGE
     except Exception as e:
-        update_obj.message.reply_text("lol")
+        update_obj.message.reply_text(f"static map exception: {e}")
 
 def return_image(update_obj, context):
     try:
@@ -156,7 +155,7 @@ def return_image(update_obj, context):
             image_path = campMaps[msg]['image']
             url = campMaps[msg]['url']
         elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
-            start(update_obj.effective_message)
+            start(update_obj, context)
         else:
             raise ValueError
         
@@ -170,7 +169,7 @@ def return_image(update_obj, context):
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(f"You can find the map at the following link: {url}")
             update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
-        return 
+        return END
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
@@ -178,8 +177,8 @@ def return_image(update_obj, context):
         else:
             errorString = "This input is not recognized! Press /start to try again!"
             update_obj.message.reply_text(errorString)
-    except Exception:
-        update_obj.message.reply_text("lol")
+    except Exception as e:
+        update_obj.message.reply_text(f"image exception: {e}")
 
 
 
