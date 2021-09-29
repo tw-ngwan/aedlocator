@@ -157,7 +157,7 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                CURRLOCATION: [telegram.ext.MessageHandler(telegram.ext.Filters.text,current_location )],
+                CURRLOCATION: [telegram.ext.MessageHandler(telegram.ext.Filters.location,current_location )],
                 STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text,state_checker )],
                 IMAGESTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 RETURNIMAGE: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
