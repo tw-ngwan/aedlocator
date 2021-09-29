@@ -103,22 +103,11 @@ def cancel(update_obj, context):
 
 
 def main():
-    # a regular expression that matches yes or no
-    yes_no_regex = re.compile(r'^(yes|no|y|n)$', re.IGNORECASE)
-    # Create our ConversationHandler, with only one state
-
 
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
                 BATSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.location or telegram.ext.Filters.text, batStep)],
-                COYSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, coyStep)],
-                WPNSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, wpnStep)],
-                BUTTSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, buttStep)],
-                DEFECTSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, defectStep)],
-                DEFECTIDSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, defectIDStep)],
-                RMKCHKSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, rmkchkStep)],
-                YESORNO: [telegram.ext.MessageHandler(telegram.ext.Filters.text, check_yes_or_no)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
         },
