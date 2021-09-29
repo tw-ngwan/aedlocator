@@ -169,7 +169,7 @@ def main():
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)]
 
         },
-        fallbacks=[telegram.ext.CommandHandler('cancel', cancel)],
+        fallbacks=[telegram.ext.CommandHandler('end', end)],
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
