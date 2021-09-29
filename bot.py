@@ -116,7 +116,7 @@ def currentLocation(update_obj, context):
                 break
             context.bot.send_location(chat_id, aed.aeds[keys][0], aed.aeds[keys][1])
             sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-            context.bot.send_message(chat_id.effective_message.chat.id,sendString )
+            update_obj.message.reply_text(sendString)
             counter += 1
             
         finalString = "Stay Safe!"
