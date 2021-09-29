@@ -57,11 +57,11 @@ class AED:
 def start(update_obj, context):
     """Send a message when the command /start is issued."""
     try:
-        loc = telegram.KeyboardButton(text='Nearest AED', request_location=True)
-        not_loc = telegram.KeyboardButton(text='Static Map')
-        quit = telegram.KeyboardButton(text='Restart')
-
-        list1 = [loc, not_loc, quit]
+        # loc = telegram.KeyboardButton(text='Nearest AED', request_location=True)
+        # not_loc = telegram.KeyboardButton(text='Static Map')
+        # quit = telegram.KeyboardButton(text='Restart')
+        buttons = ['Nearest AED','Static Map','Restart']
+        list1 = [[telegram.KeyboardButton(text=button)] for button in buttons]
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         welcomeString = """
         Hello, would you like to see your nearest AED or a static map?
@@ -72,7 +72,8 @@ Click the RESTART button at any time to restart the commands!!
         return STATECHECKER
     except Exception as e:
         errorString = "Sorry something went wrong! Please press /start to try again!"
-        update_obj.message.reply_text(e)
+        print(e)
+        update_obj.message.reply_text(errorString)
 
 
 
