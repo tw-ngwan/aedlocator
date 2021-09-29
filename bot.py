@@ -10,12 +10,10 @@ import telegram
 
 from time import sleep
 import os
-import telebot
 import geopy.distance
 from telegram import Location, KeyboardButton
+import telegram.ext
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
-from flask import Flask, request
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 
 # Enable logging
@@ -81,7 +79,8 @@ def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
         msg = update_obj.message.text
-        print(f"{update_obj.message} and {update_obj.location}")
+        print(f"{update_obj.message} ")
+        print(f"{update_obj.location} ")
         if  update_obj.message.text == 'Nearest AED' or update_obj.location : 
             current_location(update_obj, context)
             return END
@@ -96,8 +95,8 @@ def current_location(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
        
-        if update_obj.message.location:
-            aed = AED(update_obj.message.location)
+        if update_obj.location:
+            aed = AED(update_obj.location)
             aedDict[chat_id] = aed
             
             minDist = 100000000000
