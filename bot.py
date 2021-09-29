@@ -114,9 +114,9 @@ def currentLocation(update_obj, context):
         for keys in sortedDist:
             if counter > 1: # to limit to the 2 closest AEDs
                 break
-            update_obj.send_location(aed.aeds[keys][0], aed.aeds[keys][1])
+            context.bot.send_location(chat_id, aed.aeds[keys][0], aed.aeds[keys][1])
             sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
-            update_obj.message.reply_text(sendString)
+            context.bot.send_message(chat_id.effective_message.chat.id,sendString )
             counter += 1
             
         finalString = "Stay Safe!"
