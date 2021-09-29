@@ -5,7 +5,10 @@ import re
 from random import randint
 import os
 import logging
-
+from locations import locations
+from maps import campMaps, badURL
+from buttons import campButtons
+import geopy.distance
 
 
 # Enable logging
@@ -25,27 +28,22 @@ updater = telegram.ext.Updater(TOKEN)
 dispatcher = updater.dispatcher
 # Our states, as integers
 
-BATSTEP, COYSTEP, WPNSTEP,BUTTSTEP, DEFECTSTEP, DEFECTIDSTEP, RMKCHKSTEP, YESORNO, RMKSTEP, END, CANCEL = range(11)
+BATSTEP, LOCATIONSTEP, MAPSTEP,BUTTSTEP, DEFECTSTEP, DEFECTIDSTEP, RMKCHKSTEP, YESORNO, RMKSTEP, END, CANCEL = range(11)
 
 
-#=================================================================================================================
+####################################################################################
+#Global Variables
+aedDict = {}
 
-oddDict = {}
 
-class ODD:
-    def __init__(self, chatID):
-        self.chatID = chatID
-        self.unit = ""
-        self.battalion = ""        
-        self.datetime = ""
-        self.coy = ""
-        self.wpn = ""
-        self.butt = 0
-        self.defPart = ""
-        self.defect = ""
-        self.rmk = "N/A"
-       
+class AED:
+    def __init__(self, location): #initialized with the coordinates of a location
+        self.latitude = location.latitude
+        self.longitude = location.longitude
+        self.aeds = {}
 
+
+####################################################################################
 
 # The entry function
 def start(update_obj, context):
@@ -54,12 +52,14 @@ def start(update_obj, context):
     # list2 = [unitbuttons['Engineers'], unitbuttons['Commandos'], unitbuttons['Guards']]
     # list3 = [unitbuttons['Infantry'], unitbuttons['Signals']]
     try:
-        keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
-        list1 = [[telegram.KeyboardButton(text=word, request_location=True)] for word in keyboard_list]
+        # keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
+        list1 = [[telegram.KeyboardButton(text="Nearest AEDs", request_location=True)],\
+                [telegram.KeyboardButton(text="Static Maps")],\
+                 [telegram.KeyboardButton(text="Restart")]]
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         chat_id = update_obj.message.chat_id
 
-        update_obj.message.reply_text("Hello there, which unit are you from?",reply_markup=kb)
+        update_obj.message.reply_text("Hello there, what do you want?",reply_markup=kb)
     # go to the Batallion state
         return BATSTEP
     except Exception as e:
@@ -68,12 +68,35 @@ def start(update_obj, context):
 
 def batStep(update_obj, context):
     try:
-        chat_id = update_obj.message.chat_id
+        chat_id = update_obj.message.chat_id        
+        
         msg = update_obj.message
-        print(msg)
-        return END
+        if msg.location:
+            currentLocation(update_obj, context)
+            return END
+        elif msg.text == "Static Map":
+            return MAPSTEP
+        elif msg.text == "RESTART":
+            return END
+        else:
+            return CANCEL
     except Exception as e:
         cancel(update_obj, context)
+
+
+def currentLocation(update_obj, context):
+    try:
+        chat_id = update_obj.message.chat_id
+       
+        aed = AED(update_obj.message.location)
+        aedDict[chat_id] = aed
+        print(update_obj.message.location)
+        return
+    except ValueError:
+       update_obj.message.reply_text("lol")
+
+
+
 
 
 
@@ -108,6 +131,7 @@ def main():
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
                 BATSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.location or telegram.ext.Filters.text, batStep)],
+                MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
         },
