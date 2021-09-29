@@ -81,8 +81,8 @@ def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
         msg = update_obj.message.text
-        print(update_obj.message)
-        if update_obj.message.location or update_obj.message.text == 'Nearest AED': 
+        print(f"{update_obj.message} and {update_obj.location}")
+        if  update_obj.message.text == 'Nearest AED' or update_obj.location : 
             current_location(update_obj, context)
             return END
         elif msg == "Static Maps":
