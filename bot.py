@@ -72,11 +72,12 @@ def state_checker(update_obj, context):
         chat_id = update_obj.message.chat_id        
         
         msg = update_obj.message
+        print(msg)
         if msg.location:
             currentLocation(update_obj, context)
             return END
         elif msg.text == "Static Maps":
-            print("here")
+            
             return MAPSTEP
         elif msg.text == "Restart":
             return END
