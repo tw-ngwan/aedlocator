@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from telegram import replykeyboardmarkup
 load_dotenv()
 
 
@@ -65,8 +66,9 @@ def photo(bot, update):
 def skip_photo(bot, update):
     user = bot.message.from_user
     logger.info("User %s did not send a photo." % user.first_name)
+    kb = [[KeyboardButton(text = "send location", request_location=True)] ]
     bot.message.reply_text('I bet you look great! Now, send me your location please, '
-                              'or send /skip.')
+                              'or send /skip.', reply_markup = kb)
  
     return LOCATION
  
