@@ -48,10 +48,7 @@ class AED:
 
 # The entry function
 def start(update_obj, context):
-    # send the question, and show the keyboard markup (suggested answers)
-    # list1 = [unitbuttons['Armour'], unitbuttons['Artillery']]
-    # list2 = [unitbuttons['Engineers'], unitbuttons['Commandos'], unitbuttons['Guards']]
-    # list3 = [unitbuttons['Infantry'], unitbuttons['Signals']]
+
     try:
         # keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
         list1 = [[telegram.KeyboardButton(text="Nearest AEDs", request_location=True)],\
@@ -72,7 +69,7 @@ def state_checker(update_obj, context):
         chat_id = update_obj.message.chat_id        
         
         msg = update_obj.message
-        print(msg)
+        logging(msg)
         if msg.location:
             currentLocation(update_obj, context)
             return END
@@ -217,7 +214,8 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location or telegram.ext.Filters.text, state_checker)],
+                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location, state_checker),
+                telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
                 MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
                 IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text, return_image)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
