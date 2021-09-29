@@ -9,6 +9,7 @@ from locations import locations
 from maps import campMaps, badURL
 from buttons import campButtons
 import geopy.distance
+from time import sleep
 
 
 # Enable logging
@@ -76,7 +77,7 @@ def batStep(update_obj, context):
             return END
         elif msg.text == "Static Map":
             return MAPSTEP
-        elif msg.text == "RESTART":
+        elif msg.text == "Restart":
             return END
         else:
             return CANCEL
@@ -90,8 +91,37 @@ def currentLocation(update_obj, context):
        
         aed = AED(update_obj.message.location)
         aedDict[chat_id] = aed
-        print(update_obj.message.location)
-        return
+        minDist = 100000000000
+        for coords in locations:
+            dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+            
+            #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
+            aed.aeds[dist] = coords
+            if dist < minDist:
+                minDist = dist
+        sortedDist = sorted(list(aed.aeds.keys()))
+        if sortedDist[0] > 1000:
+            context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
+            sleep(0.5)
+            update_obj.message.reply_text("The nearest AED is more than 1000m away! This probably means the camp you are in is not supported yet! Thanks for your patience!!")
+            sleep(1)
+
+
+        update_obj.message.reply_text("The AEDs below are sorted from nearest to farthest!")
+        context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
+        sleep(0.5)
+        counter = 0
+        for keys in sortedDist:
+            if counter > 1: # to limit to the 2 closest AEDs
+                break
+            update_obj.bot.send_location(aed.aeds[keys][0], aed.aeds[keys][1])
+            sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
+            update_obj.message.reply_text(sendString)
+            counter += 1
+            
+        finalString = "Stay Safe!"
+        update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
+        update_obj.message.reply_text(finalString)
     except ValueError:
        update_obj.message.reply_text("lol")
 
