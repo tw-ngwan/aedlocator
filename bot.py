@@ -71,6 +71,7 @@ def state_checker(update_obj, context):
         msg = update_obj.message
         logger.info(msg)
         if msg.text == "Static Maps":
+            logger.info("in the if")
             #static_map(update_obj, context)
             return MAPSTEP 
         elif msg.location:
