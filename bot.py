@@ -69,7 +69,7 @@ def state_checker(update_obj, context):
         chat_id = update_obj.message.chat_id        
         
         msg = update_obj.message
-        logging(msg)
+        logger.info(msg)
         if msg.location:
             currentLocation(update_obj, context)
             return END
