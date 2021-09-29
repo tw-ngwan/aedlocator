@@ -70,7 +70,7 @@ Click the RESTART button at any time to restart the commands!!
     return STATECHECKER
     
 def state_checker(update_obj, context):
-    print("SC func")
+    logger.info(f"Im in SC with  {update_obj} and {context}.")
     return ConversationHandler.END
 
 
