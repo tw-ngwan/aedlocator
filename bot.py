@@ -76,6 +76,7 @@ def state_checker(update_obj, context):
             currentLocation(update_obj, context)
             return END
         elif msg.text == "Static Maps":
+            print("here")
             return MAPSTEP
         elif msg.text == "Restart":
             return END
