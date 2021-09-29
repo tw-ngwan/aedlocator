@@ -29,7 +29,7 @@ updater = telegram.ext.Updater(TOKEN)
 dispatcher = updater.dispatcher
 # Our states, as integers
 
-BATSTEP, LOCATIONSTEP, MAPSTEP,BUTTSTEP, DEFECTSTEP, DEFECTIDSTEP, RMKCHKSTEP, YESORNO, RMKSTEP, END, CANCEL = range(11)
+STATECHECKER, LOCATIONSTEP, MAPSTEP,IMAGE, END, CANCEL = range(6)
 
 
 ####################################################################################
@@ -62,12 +62,12 @@ def start(update_obj, context):
 
         update_obj.message.reply_text("Hello there, what do you want?",reply_markup=kb)
     # go to the Batallion state
-        return BATSTEP
+        return STATECHECKER
     except Exception as e:
         cancel(e, context)
 
 
-def batStep(update_obj, context):
+def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id        
         
@@ -107,7 +107,7 @@ def currentLocation(update_obj, context):
             sleep(1)
 
 
-        update_obj.message.reply_text("The AEDs below are sorted from nearest to farthest!")
+        update_obj.message.reply_text("The AEDs below are sorted from nearest to farthest!", reply_markup=telegram.ReplyKeyboardRemove())
         context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
         sleep(0.5)
         counter = 0
@@ -116,10 +116,7 @@ def currentLocation(update_obj, context):
             if counter > 1: # to limit to the 2 closest AEDs
                 break
             context.bot.send_location(chat_id, aed.aeds[keys][0], aed.aeds[keys][1])
-            print('here 1')
             curr_dist = str(round(keys))
-            print('here 2')
-
             sendString = f"The AED at the above location is approximately {curr_dist} m away"
             update_obj.message.reply_text(sendString)
             counter += 1
@@ -131,6 +128,59 @@ def currentLocation(update_obj, context):
        update_obj.message.reply_text("lol")
 
 
+
+
+# #========================================================================
+def static_map(update_obj, context):
+    try:
+
+        list1 = [[telegram.KeyboardButton(text=camps)] for camps in list(campButtons.keys())]
+        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
+        
+        update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
+        return IMAGE
+        #bot.register_next_step_handler(msg, returnImage)
+    except Exception as e:
+        update_obj.message.reply_text("lol")
+
+def return_image(update_obj, context):
+    try:
+
+        chat_id = update_obj.message.chat.id
+        msg = update_obj.effective_message.text.lower()
+        image_path = ''
+        url = ""
+
+        if update_obj.message.text == "QUIT":
+            raise Exception
+        elif update_obj.message.text in campButtons.keys():
+            image_path = campMaps[msg]['image']
+            url = campMaps[msg]['url']
+        elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
+            start(update_obj.effective_message)
+        else:
+            raise ValueError
+        
+        if image_path == badURL:
+            errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
+            context.bot.send_photo(chat_id=chat_id, photo=image_path)
+            update_obj.message.reply_text(errorString)
+        elif update_obj.effective_message.text == "/start" or update_obj.effective_message.text == "RESTART":
+            pass
+        else:
+            context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
+            update_obj.message.reply_text(f"You can find the map at the following link: {url}")
+            update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
+        return END
+    except ValueError:
+        if msg.isalpha():
+            errorString = "Please use the buttons provided! Press /start to try again!"
+            update_obj.message.reply_text(errorString)
+        else:
+            errorString = "This input is not recognized! Press /start to try again!"
+            update_obj.message.reply_text(errorString)
+    except Exception:
+        update_obj.message.reply_text("lol")
 
 
 
@@ -154,7 +204,7 @@ def cancel(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(
-        f"Okay, no question for you then, take care, {first_name}!", reply_markup=telegram.ReplyKeyboardRemove()
+        f"There was an issue, please click /start {first_name}!", reply_markup=telegram.ReplyKeyboardRemove()
     )
     return telegram.ext.ConversationHandler.END
 
@@ -165,8 +215,9 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                BATSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.location or telegram.ext.Filters.text, batStep)],
-                MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
+                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location or telegram.ext.Filters.text, state_checker)],
+                MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
+                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text, return_image)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
         },
