@@ -13,7 +13,6 @@ import os
 import geopy.distance
 from telegram import Location, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import MessageFilter, MessageHandler, ConversationHandler, Filters, CommandHandler, Updater
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
 import logging
 
 # Enable logging
