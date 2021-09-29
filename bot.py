@@ -54,44 +54,20 @@ class AED:
 
 def start(update_obj, context):
     """Send a message when the command /start is issued."""
-    try:
-        buttons = [[telegram.KeyboardButton(text='Nearest AED',request_location=True)],\
-            [telegram.KeyboardButton(text='Static Map')],[telegram.KeyboardButton(text='Restart')]]
-        kb = telegram.ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard = True, one_time_keyboard = True)
-        welcomeString = """
-        Hello, would you like to see your nearest AED or a static map?
+    buttons = [[telegram.KeyboardButton(text='Nearest AED',request_location=True)],\
+        [telegram.KeyboardButton(text='Static Map')],[telegram.KeyboardButton(text='Restart')]]
+    kb = telegram.ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard = True, one_time_keyboard = True)
+    welcomeString = """
+    Hello, would you like to see your nearest AED or a static map?
 If you click Nearest AED, the bot will request your location!
 Click the RESTART button at any time to restart the commands!!
-        """
-        update_obj.message.reply_text(welcomeString,reply_markup=kb)
-        return STATECHECKER
-    except Exception as e:
-        errorString = "Sorry something went wrong! Please press /start to try again!"
-        print(e)
-        update_obj.message.reply_text(errorString)
-
-
-
+    """
+    update_obj.message.reply_text(welcomeString,reply_markup=kb)
+    return STATECHECKER
+    
 def state_checker(update_obj, context):
-    try:
-        chat_id = update_obj.message.chat_id
-        if update_obj:#.message.location: 
-            current_location(update_obj, context)
-            return END
-        else:# msg == "Static Maps":
-            return IMAGESTEP
-    except Exception as e:
-        cancel(update_obj, context)
-
-
-
-def current_location(update_obj, context):
-    try:
-        chat_id = update_obj.message.chat_id
-        print("current_location: {update_obj}")
-        return
-    except ValueError:
-       update_obj.message.reply_text("Could not get user location, press /start to try again!" )
+    print(type(update_obj))
+    return END
 
 
 
@@ -119,10 +95,7 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                CURRLOCATION: [telegram.ext.MessageHandler(telegram.ext.Filters.location,current_location )],
-                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text,state_checker )],
-                IMAGESTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
-                RETURNIMAGE: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
+            
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)]
 
