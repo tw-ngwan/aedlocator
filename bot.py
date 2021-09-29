@@ -100,8 +100,7 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
-
+                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text or telegram.ext.Filters.location  , state_checker)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)]
 
