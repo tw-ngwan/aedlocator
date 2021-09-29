@@ -26,31 +26,14 @@ TOKEN = os.environ.get('TOKEN')
 PORT = int(os.environ.get('PORT', 8443))
 
 # Create an updater object with our API Key
-updater = telegram.ext.Updater(API_KEY)
+updater = telegram.ext.Updater(TOKEN)
 # Retrieve the dispatcher, which will be used to add handlers
 dispatcher = updater.dispatcher
 # Our states, as integers
 
 BATSTEP, COYSTEP, WPNSTEP,BUTTSTEP, DEFECTSTEP, DEFECTIDSTEP, RMKCHKSTEP, YESORNO, RMKSTEP, END, CANCEL = range(11)
 
-#=================================================================================================================
-#Google sheet API access set up
-#=================================================================================================================
-#set up google sheets API
-# Set scope to use when authenticating:
-scope = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/spreadsheets',
-         'https://www.googleapis.com/auth/drive.file',
-         'https://www.googleapis.com/auth/drive']
 
-# Authenticate using your credentials, saved in JSON in Step 1:
-jsonfile = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-creds = ServiceAccountCredentials.from_json_keyfile_name(jsonfile, scope)
-
-# authorize the clientsheet 
-client = gspread.authorize(creds)
-sheet = client.open('ODD Feedback').sheet1
-data = gspread_dataframe.get_as_dataframe(sheet)
 #=================================================================================================================
 
 oddDict = {}
@@ -104,10 +87,6 @@ def end(update_obj, context):
 
     chat_id = update_obj.message.chat_id
     msg = update_obj.message.text
-    odd = oddDict[chat_id]
-    odd.rmk = msg
-
-    sheet.append_row([str(odd.datetime), f"{odd.battalion} {odd.coy}", odd.wpn, odd.butt,odd.defPart, odd.defect, odd.rmk])
 
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
