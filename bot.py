@@ -81,7 +81,7 @@ def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
         msg = update_obj.message.text
-        
+        print(update_obj.message.location)
         if update_obj.message.location: 
             current_location(update_obj, context)
             return END
@@ -163,6 +163,7 @@ def main():
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
                 CURRLOCATION: [telegram.ext.MessageHandler(telegram.ext.Filters.text,current_location )],
+                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text,state_checker )],
                 IMAGESTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 RETURNIMAGE: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)],
