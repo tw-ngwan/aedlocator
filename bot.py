@@ -170,7 +170,7 @@ def return_image(update_obj, context):
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(f"You can find the map at the following link: {url}")
             update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
-        return END
+        return 
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
