@@ -70,9 +70,9 @@ Click the RESTART button at any time to restart the commands!!
         """
         update_obj.message.reply_text(welcomeString,reply_markup=kb)
         return STATECHECKER
-    except Exception:
+    except Exception as e:
         errorString = "Sorry something went wrong! Please press /start to try again!"
-        update_obj.message.reply_text(errorString)
+        update_obj.message.reply_text(e)
 
 
 
@@ -82,7 +82,7 @@ def state_checker(update_obj, context):
         msg = update_obj.message.text
         
         if update_obj.message.location: 
-            currentLocation(update_obj, context)
+            current_location(update_obj, context)
             return END
         elif msg == "Static Maps":
             return IMAGESTEP
