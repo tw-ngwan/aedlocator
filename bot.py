@@ -77,7 +77,7 @@ def state_checker(update_obj, context):
         chat_id = update_obj.message.chat_id
         #msg = update_obj.message.text
         print(f"{update_obj.message.location}")
-        if update_obj.message.location: 
+        if update_obj:#.message.location: 
             current_location(update_obj, context)
             return END
         else:# msg == "Static Maps":
