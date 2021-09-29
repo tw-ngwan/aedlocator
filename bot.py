@@ -12,7 +12,7 @@ from time import sleep
 import os
 import geopy.distance
 from telegram import Location, KeyboardButton, ReplyKeyboardMarkup
-from telegram.ext import MessageFilter, MessageHandler, ConversationHandler, Filters, CommandHandler, Updater
+from telegram.ext import MessageFilter, MessageHandler, ConversationHandler, Filters, CommandHandler, Updater, RegexHandler
 import logging
 
 # Enable logging
@@ -27,87 +27,120 @@ logger = logging.getLogger(__name__)
 API_KEY = os.environ.get('TOKEN')
 PORT = int(os.environ.get('PORT', 8443))
 
-# Create an updater object with our API Key
-updater = Updater(API_KEY)
-# Retrieve the dispatcher, which will be used to add handlers
-dispatcher = updater.dispatcher
-# Our states, as integers
-
-STATECHECKER, CURRLOCATION, IMAGESTEP, RETURNIMAGE, CANCEL, END = range(6)
-
-####################################################################################
-#Global Variables
-aedDict = {}
-
-
-class AED:
-    def __init__(self, location): #initialized with the coordinates of a location
-        self.latitude = location.latitude
-        self.longitude = location.longitude
-        self.aeds = {}
-
-
-####################################################################################
-       
-
-
-def start(update_obj, context):
-    """Send a message when the command /start is issued."""
-
-
-    buttons = [[KeyboardButton(text='Nearest AED',request_location=True)],\
-        [KeyboardButton(text='Static Map')],[KeyboardButton(text='Restart')]]
-
-    kb = ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard = True, one_time_keyboard = True)
-
-    welcomeString = """
-    Hello, would you like to see your nearest AED or a static map?
-If you click Nearest AED, the bot will request your location!
-Click the RESTART button at any time to restart the commands!!
-    """
-
-    update_obj.message.reply_text(welcomeString,reply_markup=kb)
-    return STATECHECKER
-    
-def state_checker(update_obj, context):
-    logger.info(f"Im in SC with  {update_obj} and {context}.")
+GENDER, PHOTO, LOCATION, BIO = range(4)
+ 
+ 
+def start(bot, update):
+    reply_keyboard = [['Boy', 'Girl', 'Other']]
+ 
+    update.message.reply_text(
+        'Hi! My name is Professor Bot. I will hold a conversation with you. '
+        'Send /cancel to stop talking to me.\n\n'
+        'Are you a boy or a girl?',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+ 
+    return GENDER
+ 
+ 
+def gender(bot, update):
+    user = update.message.from_user
+    logger.info("Gender of %s: %s" % (user.first_name, update.message.text))
+    update.message.reply_text('I see! Please send me a photo of yourself, '
+                              'so I know what you look like, or send /skip if you don\'t want to.')
+ 
+    return PHOTO
+ 
+ 
+def photo(bot, update):
+    user = update.message.from_user
+    photo_file = bot.getFile(update.message.photo[-1].file_id)
+    photo_file.download('user_photo.jpg')
+    logger.info("Photo of %s: %s" % (user.first_name, 'user_photo.jpg'))
+    update.message.reply_text('Gorgeous! Now, send me your location please, '
+                              'or send /skip if you don\'t want to.')
+ 
+    return LOCATION
+ 
+ 
+def skip_photo(bot, update):
+    user = update.message.from_user
+    logger.info("User %s did not send a photo." % user.first_name)
+    update.message.reply_text('I bet you look great! Now, send me your location please, '
+                              'or send /skip.')
+ 
+    return LOCATION
+ 
+ 
+def location(bot, update):
+    user = update.message.from_user
+    user_location = update.message.location
+    logger.info("Location of %s: %f / %f"
+                % (user.first_name, user_location.latitude, user_location.longitude))
+    update.message.reply_text('Maybe I can visit you sometime! '
+                              'At last, tell me something about yourself.')
+ 
+    return BIO
+ 
+ 
+def skip_location(bot, update):
+    user = update.message.from_user
+    logger.info("User %s did not send a location." % user.first_name)
+    update.message.reply_text('You seem a bit paranoid! '
+                              'At last, tell me something about yourself.')
+ 
+    return BIO
+ 
+ 
+def bio(bot, update):
+    user = update.message.from_user
+    logger.info("Bio of %s: %s" % (user.first_name, update.message.text))
+    update.message.reply_text('Thank you! I hope we can talk again some day.')
+ 
     return ConversationHandler.END
-
-
-
-
-def cancel(update_obj, context):
-    # get the user's first name
-    first_name = update_obj.message.from_user['first_name']
-    update_obj.message.reply_text(
-        f"Update is {update_obj}!", reply_markup=telegram.ReplyKeyboardRemove()
-    )
+ 
+ 
+def cancel(bot, update):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation." % user.first_name)
+    update.message.reply_text('Bye! I hope we can talk again some day.')
+ 
     return ConversationHandler.END
-
-def end(update_obj, context):
-    # get the user's first name
-    first_name = update_obj.message.from_user['first_name']
-    update_obj.message.reply_text(
-        f"Thank you {first_name}, have a wonderful day. Press /start to restart the bot!", reply_markup=telegram.ReplyKeyboardRemove()
-    )
-    return ConversationHandler.END
-
+ 
+ 
+def error(bot, update, error):
+    logger.warn('Update "%s" caused error "%s"' % (update, error))
+ 
+ 
 def main():
-
-
-
-    handler = ConversationHandler(
+    # Create the EventHandler and pass it your bot's token.
+    updater = Updater(API_KEY)
+ 
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+ 
+    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
+    conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
+ 
         states={
-                STATECHECKER: [MessageHandler(Filters.text('Nearest AED' or 'Static Map') or Filters.location  , state_checker)],
-                CANCEL: [MessageHandler(Filters.text, cancel)],
-                END: [MessageHandler(Filters.text, end)]
-
+            GENDER: [RegexHandler('^(Boy|Girl|Other)$', gender)],
+ 
+            PHOTO: [MessageHandler(Filters.photo, photo),
+                    CommandHandler('skip', skip_photo)],
+ 
+            LOCATION: [MessageHandler(Filters.location, location),
+                       CommandHandler('skip', skip_location)],
+ 
+            BIO: [MessageHandler(Filters.text, bio)]
         },
-        fallbacks=[CommandHandler('end', end)],
-        )
-    # add the handler to the dispatcher
-    dispatcher.add_handler(handler)
+ 
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+ 
+    dp.add_handler(conv_handler)
+ 
+    # log all errors
+    dp.add_error_handler(error)
     # add handlers
     updater.start_webhook(listen="0.0.0.0",
                         port=PORT,
