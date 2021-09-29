@@ -66,6 +66,9 @@ Click the RESTART button at any time to restart the commands!!
     return STATECHECKER
     
 def state_checker(update_obj, context):
+    location = update_obj.message.location
+    print(location)
+    
     print(f""" 
     type is: {type(update_obj)} 
     updateobj is: {update_obj}""")
