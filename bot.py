@@ -75,7 +75,7 @@ def state_checker(update_obj, context):
             return END
         elif msg.text == "Static Maps":
             static_map(update_obj, context)
-            return END
+            #return END
         elif msg.text == "Restart":
             return END
         else:
@@ -138,7 +138,6 @@ def static_map(update_obj, context):
         
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
         return IMAGE
-        #bot.register_next_step_handler(msg, returnImage)
     except Exception as e:
         update_obj.message.reply_text("lol")
 
