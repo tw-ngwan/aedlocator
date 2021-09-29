@@ -33,7 +33,7 @@ GENDER, PHOTO, LOCATION, BIO = range(4)
 def start(bot, update):
     reply_keyboard = [['Boy', 'Girl', 'Other']]
  
-    update.message.reply_text(
+    bot.message.reply_text(
         'Hi! My name is Professor Bot. I will hold a conversation with you. '
         'Send /cancel to stop talking to me.\n\n'
         'Are you a boy or a girl?',
