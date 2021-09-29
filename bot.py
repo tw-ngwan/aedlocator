@@ -63,17 +63,17 @@ def photo(bot, update):
  
  
 def skip_photo(bot, update):
-    user = update.message.from_user
+    user = bot.message.from_user
     logger.info("User %s did not send a photo." % user.first_name)
-    update.message.reply_text('I bet you look great! Now, send me your location please, '
+    bot.message.reply_text('I bet you look great! Now, send me your location please, '
                               'or send /skip.')
  
     return LOCATION
  
  
 def location(bot, update):
-    user = update.message.from_user
-    user_location = update.message.location
+    user = bot.message.from_user
+    user_location = bot.message.location
     logger.info("Location of %s: %f / %f"
                 % (user.first_name, user_location.latitude, user_location.longitude))
     update.message.reply_text('Maybe I can visit you sometime! '
