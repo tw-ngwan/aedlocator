@@ -60,9 +60,9 @@ def start(update_obj, context):
         # loc = telegram.KeyboardButton(text='Nearest AED', request_location=True)
         # not_loc = telegram.KeyboardButton(text='Static Map')
         # quit = telegram.KeyboardButton(text='Restart')
-        buttons = ['Nearest AED','Static Map','Restart']
-        list1 = [[telegram.KeyboardButton(text=button)] for button in buttons]
-        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
+        buttons = [[telegram.KeyboardButton(text='Nearest AED',request_location=True)],[telegram.KeyboardButton(text='Static Map')],[telegram.KeyboardButton(text='Restart')]]
+        #list1 = [[telegram.KeyboardButton(text=button)] for button in buttons]
+        kb = telegram.ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard = True, one_time_keyboard = True)
         welcomeString = """
         Hello, would you like to see your nearest AED or a static map?
 If you click Nearest AED, the bot will request your location!
