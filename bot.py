@@ -75,12 +75,12 @@ Click the RESTART button at any time to restart the commands!!
 def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
-        msg = update_obj.message.text
-        print(f"{update_obj}")
-        if  msg == 'Nearest AED': 
+        #msg = update_obj.message.text
+        print(f"{update_obj.message.location}")
+        if update_obj.message.location: 
             current_location(update_obj, context)
             return END
-        elif msg == "Static Maps":
+        else:# msg == "Static Maps":
             return IMAGESTEP
     except Exception as e:
         cancel(update_obj, context)
