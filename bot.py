@@ -55,11 +55,8 @@ class AED:
 def start(update_obj, context):
     """Send a message when the command /start is issued."""
     try:
-        # loc = telegram.KeyboardButton(text='Nearest AED', request_location=True)
-        # not_loc = telegram.KeyboardButton(text='Static Map')
-        # quit = telegram.KeyboardButton(text='Restart')
-        buttons = [[telegram.KeyboardButton(text='Nearest AED',request_location=True)],[telegram.KeyboardButton(text='Static Map')],[telegram.KeyboardButton(text='Restart')]]
-        #list1 = [[telegram.KeyboardButton(text=button)] for button in buttons]
+        buttons = [[telegram.KeyboardButton(text='Nearest AED',request_location=True)],\
+            [telegram.KeyboardButton(text='Static Map')],[telegram.KeyboardButton(text='Restart')]]
         kb = telegram.ReplyKeyboardMarkup(keyboard=buttons,resize_keyboard = True, one_time_keyboard = True)
         welcomeString = """
         Hello, would you like to see your nearest AED or a static map?
@@ -79,9 +76,8 @@ def state_checker(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
         msg = update_obj.message.text
-        print(f"{update_obj.message} ")
-        print(f"{update_obj.location} ")
-        if  update_obj.message.text == 'Nearest AED' or update_obj.location : 
+        print(f"{update_obj}")
+        if  msg == 'Nearest AED': 
             current_location(update_obj, context)
             return END
         elif msg == "Static Maps":
@@ -142,7 +138,7 @@ def cancel(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(
-        f"Okay, no question for you then, take care, {first_name}!", reply_markup=telegram.ReplyKeyboardRemove()
+        f"Update is {update_obj}!", reply_markup=telegram.ReplyKeyboardRemove()
     )
     return telegram.ext.ConversationHandler.END
 
