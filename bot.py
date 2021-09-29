@@ -145,7 +145,7 @@ def return_image(update_obj, context):
     try:
 
         chat_id = update_obj.message.chat.id
-        msg = update_obj.effective_message.text.lower()
+        msg = update_obj.message.text.lower()
         image_path = ''
         url = ""
 
@@ -213,10 +213,10 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
+                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text(campButtons.keys()), return_image)],
                 STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location, state_checker),
                 telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
                 MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
-                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text, return_image)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
         },
