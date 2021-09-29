@@ -66,7 +66,9 @@ Click the RESTART button at any time to restart the commands!!
     return STATECHECKER
     
 def state_checker(update_obj, context):
-    print(type(update_obj))
+    print(f""" 
+    type is: {type(update_obj)} 
+    updateobj is: {update_obj}""")
     return END
 
 
@@ -95,7 +97,8 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-            
+                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
+
                 CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)],
                 END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)]
 
