@@ -53,9 +53,10 @@ def start(update_obj, context):
         # keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
         list1 = [[telegram.KeyboardButton(text="Nearest AEDs", request_location=True)],\
                 [telegram.KeyboardButton(text="Static Maps")],\
-                 [telegram.KeyboardButton(text="Restart")]]
+                [telegram.KeyboardButton(text="Restart")],\
+                [telegram.KeyboardButton(text="Quit")]]
+        
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
-        chat_id = update_obj.message.chat_id
 
         update_obj.message.reply_text("Hello there, how can I help you?",reply_markup=kb)
     # go to the Batallion state
@@ -76,16 +77,18 @@ def state_checker(update_obj, context):
             static_map(update_obj, context)
             return IMAGE 
         elif msg.location:
-            return currentLocation(update_obj, context)
+            return current_location(update_obj, context)
         elif msg.text == "Restart":
             return start(update_obj, context)
+        elif msg.text == "Quit":
+            return end(update_obj, context)
         else:
             return cancel(update_obj, context)
     except Exception as f:
         cancel(update_obj, context)
 
 
-def currentLocation(update_obj, context):
+def current_location(update_obj, context):
     try:
         chat_id = update_obj.message.chat_id
        
