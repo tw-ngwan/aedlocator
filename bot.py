@@ -1,16 +1,21 @@
-import telegram
-import telebot
-import telegram.ext
-import re
-from random import randint
-import os
-import logging
+from dotenv import load_dotenv
+load_dotenv()
+
+
 from locations import locations
 from maps import campMaps, badURL
 from buttons import campButtons
-import geopy.distance
-from time import sleep
 
+
+from time import sleep
+import os
+import telebot
+import geopy.distance
+from telegram import Location, KeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton
+from flask import Flask, request
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import logging
 
 # Enable logging
 logging.basicConfig(
@@ -19,17 +24,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# The API Key we received for our bot
+
+
+# API_key = os.environ.get('aedAPI_KEY')
 TOKEN = os.environ.get('TOKEN')
+bot = telebot.TeleBot(TOKEN)
 PORT = int(os.environ.get('PORT', 8443))
-
-# Create an updater object with our API Key
-updater = telegram.ext.Updater(TOKEN)
-# Retrieve the dispatcher, which will be used to add handlers
-dispatcher = updater.dispatcher
-# Our states, as integers
-
-STATECHECKER, LOCATIONSTEP, MAPSTEP,IMAGE, END, CANCEL = range(6)
 
 
 ####################################################################################
@@ -45,186 +45,181 @@ class AED:
 
 
 ####################################################################################
-
-# The entry function
-def start(update_obj, context):
-
+def start(update, context):
+    """Send a message when the command /start is issued."""
     try:
-        # keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
-        list1 = [[telegram.KeyboardButton(text="Nearest AEDs", request_location=True)],\
-                [telegram.KeyboardButton(text="Static Maps")],\
-                 [telegram.KeyboardButton(text="Restart")]]
-        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
-        chat_id = update_obj.message.chat_id
+        loc = telebot.types.KeyboardButton(text='Nearest AED', request_location=True)
+        not_loc = telebot.types.KeyboardButton(text='Static Map')
+        quit = campButtons["Quit"]
 
-        update_obj.message.reply_text("Hello there, what do you want?",reply_markup=kb)
-    # go to the Batallion state
-        return STATECHECKER
-    except Exception as e:
-        cancel(e, context)
+        start = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+        start.add(loc, not_loc, quit)
+        welcomeString = """
+        Hello, would you like to see your nearest AED or a static map?
+If you click Nearest AED, the bot will request your location!
+Click the RESTART button at any time to restart the commands!!
+        """
+        bot.send_message(update.effective_message.chat_id,text= welcomeString, reply_markup=start)
+    except Exception:
+        errorString = "Sorry something went wrong! Please press /start to try again!"
+        bot.send_message(update.effective_message.chat_id,errorString)
 
 
-def state_checker(update_obj, context):
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    bot.send_message(update.effective_message.chat_id, """ 
+Welcome to AED Bot!
+If you need to find the nearest AED or get a map of the AEDs at a certain camp use the /start command
+
+If you haven't used the bot in a while, just type in /start and the bot will restart
+
+If you have any issues please contact 62FMD at 6AMB!
+    
+     """)
+    
+    
+# #if location is not handled correctly, exception is now raised
+@bot.message_handler(content_types=['location'])
+def currentLocation(update, context):
     try:
-        chat_id = update_obj.message.chat_id        
-        
-        msg = update_obj.message
-        logger.info(msg)
-        if msg.text == "Static Maps":
-            static_map(update_obj, context)
-            return IMAGE 
-        elif msg.location:
-            currentLocation(update_obj, context)
-            return END
-        elif msg.text == "Restart":
-            return END
-        else:
-            return CANCEL
-    except Exception as e:
-        cancel(update_obj, context)
-
-
-def currentLocation(update_obj, context):
-    try:
-        chat_id = update_obj.message.chat_id
+        chat_id = update.effective_message.chat_id
        
-        aed = AED(update_obj.message.location)
-        aedDict[chat_id] = aed
-        minDist = 100000000000
-        for coords in locations:
-            dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+        if update.effective_message.location:
+            aed = AED(update.effective_message.location)
+            aedDict[chat_id] = aed
             
-            #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
-            aed.aeds[dist] = coords
-            if dist < minDist:
-                minDist = dist
-        sortedDist = sorted(list(aed.aeds.keys()))
-        if sortedDist[0] > 1000:
-            context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
+            minDist = 100000000000
+            for coords in locations:
+                dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
+                
+                #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
+                aed.aeds[dist] = coords
+                if dist < minDist:
+                    minDist = dist
+            sortedDist = sorted(list(aed.aeds.keys()))
+            if sortedDist[0] > 1000:
+                bot.send_chat_action(update.effective_message.chat.id, "typing")
+                sleep(0.5)
+                bot.send_message(update.effective_message.chat.id,"The nearest AED is more than 1000m away! This probably means the camp you are in is not supported yet! Thanks for your patience!!" )
+                sleep(1)
+                
+            bot.send_message(update.effective_message.chat.id,"The AEDs below are sorted from nearest to farthest!" )
+            bot.send_chat_action(update.effective_message.chat.id, "typing")
             sleep(0.5)
-            update_obj.message.reply_text("The nearest AED is more than 1000m away! This probably means the camp you are in is not supported yet! Thanks for your patience!!")
-            sleep(1)
-
-
-        update_obj.message.reply_text("The AEDs below are sorted from nearest to farthest!", reply_markup=telegram.ReplyKeyboardRemove())
-        context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
-        sleep(0.5)
-        counter = 0
-        for keys in sortedDist:
-
-            if counter > 1: # to limit to the 2 closest AEDs
-                break
-            context.bot.send_location(chat_id, aed.aeds[keys][0], aed.aeds[keys][1])
-            curr_dist = str(round(keys))
-            sendString = f"The AED at the above location is approximately {curr_dist} m away"
-            update_obj.message.reply_text(sendString)
-            counter += 1
+            counter = 0
+            for keys in sortedDist:
+                if counter > 1: # to limit to the 2 closest AEDs
+                    break
+                bot.send_location(update.effective_message.chat.id, aed.aeds[keys][0], aed.aeds[keys][1])
+                sendString = "The AED at the above location is approximately " + str(round(keys)) + "m away"
+                bot.send_message(update.effective_message.chat.id,sendString )
+                counter += 1
+                
+            finalString = "Stay Safe!"
+            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
+            bot.send_message(update.effective_message.chat.id, finalString )
             
-        finalString = "Stay Safe!"
-        update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
-        update_obj.message.reply_text(finalString)
-    except ValueError as e:
-       update_obj.message.reply_text(f"location exception: {e}")
-
+        else:
+            raise ValueError
+    except ValueError:
+       bot.send_message(update.effective_message.chat.id,"Could not get user location, press /start to try again!" )
 
 
 
 # #========================================================================
-def static_map(update_obj, context):
+def staticMap(update, context):
     try:
+        locs = telebot.types.ReplyKeyboardMarkup(resize_keyboard = True, one_time_keyboard = True)
+   
+        locs.add(campButtons["NSDC"], campButtons["NSC"], campButtons["Mandai Hill"],campButtons["KC2"],\
+                campButtons["KC3"],campButtons["Mowbray"],campButtons["Hendon"],\
+                campButtons["Clementi"],campButtons["Maju"],campButtons["ALB"],campButtons["Gedong"], campButtons["Quit"])
 
-        list1 = [[telegram.KeyboardButton(text=camps)] for camps in list(campButtons.keys())]
-        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
-        
-        update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
-        return IMAGE
+        msg = bot.reply_to(update.effective_message, """\
+        Which camp would you like a map for?
+        """, reply_markup=locs)
+        #bot.register_next_step_handler(msg, returnImage)
     except Exception as e:
-        update_obj.message.reply_text(f"static map exception: {e}")
+        bot.reply_to(update.effective_message, 'oooops')
 
-def return_image(update_obj, context):
+def returnImage(update, context):
     try:
 
-        chat_id = update_obj.message.chat.id
-        msg = update_obj.message.text.lower()
+        chat_id = update.effective_message.chat.id
+        msg = update.effective_message.text.lower()
         image_path = ''
         url = ""
 
-        if update_obj.message.text == "QUIT":
+        if update.effective_message.text == "QUIT":
             raise Exception
-        elif update_obj.message.text in campButtons.keys():
+        elif update.effective_message.text in campButtons.keys():
             image_path = campMaps[msg]['image']
             url = campMaps[msg]['url']
-        elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
-            start(update_obj, context)
+        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
+            start(update.effective_message)
         else:
             raise ValueError
         
         if image_path == badURL:
             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
-            context.bot.send_photo(chat_id=chat_id, photo=image_path)
-            update_obj.message.reply_text(errorString)
-        elif update_obj.effective_message.text == "/start" or update_obj.effective_message.text == "RESTART":
+            bot.send_photo(chat_id=chat_id, photo=image_path)
+            bot.send_message(update.effective_message.chat.id,errorString )
+        elif update.effective_message.text == "/start" or update.effective_message.text == "RESTART":
             pass
         else:
-            context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
-            update_obj.message.reply_text(f"You can find the map at the following link: {url}")
-            update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
-        return END
+            bot.send_photo(chat_id, photo=open(image_path, 'rb'))
+            bot.send_message(chat_id, f"You can find the map at the following link: {url}")
+            bot.send_message(chat_id, "If you need any more information, please type in the /start command again!")
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
-            update_obj.message.reply_text(errorString)
+            bot.send_message(update.effective_message.chat.id,errorString)
         else:
             errorString = "This input is not recognized! Press /start to try again!"
-            update_obj.message.reply_text(errorString)
-    except Exception as e:
-        update_obj.message.reply_text(f"image exception: {e}")
+            bot.send_message(update.effective_message.chat.id,errorString)
+    except Exception:
+        st = update.effective_message.text.replace(" ", "").lower()
+        bot.send_message(update.effective_message.chat.id,"except")
+
+# @bot.message_handler(regexp="Quit")    
+def qFunc(update, context):
+    try:
+        bot.send_message(update.effective_message.chat.id,"Unrecognized Input! Please press /start to try again!")
+    except Exception:
+        errorString = "Sorry something went wrong! Please press /start to try again!"
+        bot.send_message(update.effective_message.chat.id,errorString)
 
 
+#####################################################################################
 
+#bot.polling()
 
-def end(update_obj, context):
-
-    chat_id = update_obj.message.chat_id
-    msg = update_obj.message.text
-
-    # get the user's first name
-    first_name = update_obj.message.from_user['first_name']
-    update_obj.message.reply_text(
-        f"Thank you {first_name} for your report!", reply_markup=telegram.ReplyKeyboardRemove()
-    )
-    return telegram.ext.ConversationHandler.END
-
-
-
-
-def cancel(update_obj, context):
-    # get the user's first name
-    first_name = update_obj.message.from_user['first_name']
-    update_obj.message.reply_text(
-        f"There was an issue, please click /start {first_name}!", reply_markup=telegram.ReplyKeyboardRemove()
-    )
-    return telegram.ext.ConversationHandler.END
 
 
 
 def main():
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    updater = Updater(TOKEN, use_context=True)
 
-    handler = telegram.ext.ConversationHandler(
-        entry_points=[telegram.ext.CommandHandler('start', start)],
-        states={
-                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text(campButtons.keys()), return_image)],
-                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location, state_checker),
-                telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
-                MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
-                END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
-                CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
-        },
-        fallbacks=[telegram.ext.CommandHandler('cancel', cancel)],
-        )
-    # add the handler to the dispatcher
-    dispatcher.add_handler(handler)
-    # start polling for updates from Telegram
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
+    
+    startList = ["/start", "RESTART"]
+    #message handling
+    dp.add_handler(MessageHandler(Filters.location, currentLocation))
+    dp.add_handler(MessageHandler(Filters.text("Static Map"), staticMap))
+    dp.add_handler(MessageHandler(Filters.text(startList), start)) 
+    dp.add_handler(MessageHandler(Filters.text(campButtons.keys()), returnImage)) #does keys have to be a list?
+    dp.add_handler(MessageHandler(Filters.text, qFunc)) 
+
+    # add handlers
     updater.start_webhook(listen="0.0.0.0",
                         port=PORT,
                         url_path=TOKEN,
