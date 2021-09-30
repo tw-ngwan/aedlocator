@@ -219,7 +219,7 @@ def main():
     handler = telegram.ext.ConversationHandler(
         entry_points=[telegram.ext.CommandHandler('start', start)],
         states={
-                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text(campButtons.keys()), return_image)],
+                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text, return_image)],
                 STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location, state_checker),
                 telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
                 MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
