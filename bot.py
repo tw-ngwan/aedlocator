@@ -66,7 +66,6 @@ def start(update_obj, context):
 
 def state_checker(update_obj, context):
     try:
-        chat_id = update_obj.message.chat_id        
         
         msg = update_obj.message
         logger.info(msg)
@@ -75,9 +74,9 @@ def state_checker(update_obj, context):
             return IMAGE 
         elif msg.location:
             currentLocation(update_obj, context)
-            return END
+            return telegram.ext.ConversationHandler.END
         elif msg.text == "Restart":
-            return END
+            return start(update_obj, context)
         else:
             return CANCEL
     except Exception as f:
@@ -123,6 +122,7 @@ def currentLocation(update_obj, context):
         finalString = "Stay Safe!"
         update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
         update_obj.message.reply_text(finalString)
+        return telegram.ext.ConversationHandler.END
     except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
 
