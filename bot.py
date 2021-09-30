@@ -123,7 +123,7 @@ def currentLocation(update_obj, context):
         finalString = "Stay Safe!"
         update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
         update_obj.message.reply_text(finalString)
-    except ValueError as elif condition:
+    except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
 
 
