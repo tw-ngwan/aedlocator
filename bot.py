@@ -57,11 +57,14 @@ def start(update_obj, context):
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         chat_id = update_obj.message.chat_id
 
-        update_obj.message.reply_text("Hello there, what do you want?",reply_markup=kb)
+        update_obj.message.reply_text("Hello there, how can I help you?",reply_markup=kb)
     # go to the Batallion state
         return STATECHECKER
     except Exception as e:
         cancel(e, context)
+
+
+
 
 
 def state_checker(update_obj, context):
@@ -73,12 +76,11 @@ def state_checker(update_obj, context):
             static_map(update_obj, context)
             return IMAGE 
         elif msg.location:
-            currentLocation(update_obj, context)
-            return telegram.ext.ConversationHandler.END
+            return currentLocation(update_obj, context)
         elif msg.text == "Restart":
             return start(update_obj, context)
         else:
-            return CANCEL
+            return cancel(update_obj, context)
     except Exception as f:
         cancel(update_obj, context)
 
@@ -93,7 +95,6 @@ def currentLocation(update_obj, context):
         for coords in locations:
             dist = geopy.distance.distance((aed.latitude, aed.longitude), coords).m
             
-            #dist = geopy.distance.distance((1.405854, 103.818543), coords).m if need to show POV for NSDC
             aed.aeds[dist] = coords
             if dist < minDist:
                 minDist = dist
@@ -120,19 +121,18 @@ def currentLocation(update_obj, context):
             counter += 1
             
         finalString = "Stay Safe!"
-        update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
+        update_obj.message.reply_text("If you need any more information, please type in the /start command again!", reply_markup=telegram.ReplyKeyboardRemove())
         update_obj.message.reply_text(finalString)
         return telegram.ext.ConversationHandler.END
     except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
-
+       cancel(update_obj, context)
 
 
 
 # #========================================================================
 def static_map(update_obj, context):
     try:
-
         list1 = [[telegram.KeyboardButton(text=camps)] for camps in list(campButtons.keys())]
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         
@@ -140,6 +140,7 @@ def static_map(update_obj, context):
         return IMAGE
     except Exception as e:
         update_obj.message.reply_text(f"static map exception: {e}")
+        cancel(update_obj, context)
 
 def return_image(update_obj, context):
     try:
@@ -163,23 +164,26 @@ def return_image(update_obj, context):
             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
             context.bot.send_photo(chat_id=chat_id, photo=image_path)
             update_obj.message.reply_text(errorString)
-        elif update_obj.effective_message.text == "/start" or update_obj.effective_message.text == "RESTART":
+        elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
             pass
         else:
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(f"You can find the map at the following link: {url}")
-            update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
+            update_obj.message.reply_text("If you need any more information, please type in the /start command again!",reply_markup=telegram.ReplyKeyboardRemove())
         return telegram.ext.ConversationHandler.END
+    
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
             update_obj.message.reply_text(errorString)
+            return telegram.ext.ConversationHandler.END
         else:
             errorString = "This input is not recognized! Press /start to try again!"
             update_obj.message.reply_text(errorString)
+            return telegram.ext.ConversationHandler.END
     except Exception as e:
         update_obj.message.reply_text(f"image exception: {e}")
-
+        cancel(update_obj, context)
 
 
 
@@ -191,7 +195,7 @@ def end(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(
-        f"Thank you {first_name} for your report!", reply_markup=telegram.ReplyKeyboardRemove()
+        f"Thank you {first_name} ", reply_markup=telegram.ReplyKeyboardRemove()
     )
     return telegram.ext.ConversationHandler.END
 
@@ -201,12 +205,14 @@ def end(update_obj, context):
 def cancel(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
-    update_obj.message.reply_text(
-        f"There was an issue, please click /start {first_name}!", reply_markup=telegram.ReplyKeyboardRemove()
-    )
+    update_obj.message.reply_text(f"There was an issue, please click /start {first_name}!",\
+         reply_markup=telegram.ReplyKeyboardRemove())
     return telegram.ext.ConversationHandler.END
 
-
+def error(bot, update, error):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, error)
+    return telegram.ext.ConversationHandler.END
 
 def main():
 
@@ -224,6 +230,8 @@ def main():
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
+    dispatcher.add_error_handler(error)
+
     # start polling for updates from Telegram
     updater.start_webhook(listen="0.0.0.0",
                         port=PORT,
