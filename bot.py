@@ -80,7 +80,7 @@ def state_checker(update_obj, context):
             return END
         else:
             return CANCEL
-    except Exception as e:
+    except Exception as f:
         cancel(update_obj, context)
 
 
@@ -169,7 +169,7 @@ def return_image(update_obj, context):
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(f"You can find the map at the following link: {url}")
             update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
-        return END
+        return telegram.ext.ConversationHandler.END
     except ValueError:
         if msg.isalpha():
             errorString = "Please use the buttons provided! Press /start to try again!"
