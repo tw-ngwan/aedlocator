@@ -136,7 +136,7 @@ def current_location(update_obj, context):
 # #========================================================================
 def static_map(update_obj, context):
     try:
-        list1 = [[telegram.KeyboardButton(text=camps)] for camps in list(campButtons.keys())]
+        list1 = [[telegram.KeyboardButton(text=camps)] for camps in sorted(list(campButtons.keys()))]
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
