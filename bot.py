@@ -232,6 +232,7 @@ def main():
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
+    dispatcher.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel))
     dispatcher.add_error_handler(error)
 
     # start polling for updates from Telegram
