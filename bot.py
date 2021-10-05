@@ -1,16 +1,13 @@
-import telegram
-import telebot
-import telegram.ext
-import re
-from random import randint
 import os
 import logging
-from locations import locations
-from maps import campMaps, badURL
-from buttons import campButtons
 import geopy.distance
 from time import sleep
 
+import telegram
+from telegram.ext import Updater, CommandHandler,ConversationHandler, MessageHandler, Filters
+
+from locations import locations
+from maps import campMaps, badURL
 
 # Enable logging
 logging.basicConfig(
@@ -24,7 +21,7 @@ TOKEN = os.environ.get('TOKEN')
 PORT = int(os.environ.get('PORT', 8443))
 
 # Create an updater object with our API Key
-updater = telegram.ext.Updater(TOKEN)
+updater = Updater(TOKEN)
 # Retrieve the dispatcher, which will be used to add handlers
 dispatcher = updater.dispatcher
 # Our states, as integers
@@ -45,6 +42,31 @@ class AED:
 
 
 ####################################################################################
+def help(update_obj, context):
+    try:
+        help_string = """
+        Welcome to AED Locator Bot! Here you can find maps of 
+        SAF camps with labeled AED locations or even find the
+        nearest AEDs to your current location.
+
+        /start will start the bot and allow you to choose 
+        your appropriate function
+
+        The bot will request your location if you choose to 
+        find the nearest AEDs
+
+        If you are having any issues please contact 62FMD
+        at 6AMB
+        
+        
+        """
+
+        update_obj.message.reply_text(help_string)
+        return ConversationHandler.END
+
+    except Exception as e:
+        cancel(e, context)
+
 
 # The entry function
 def start(update_obj, context):
@@ -53,7 +75,7 @@ def start(update_obj, context):
         # keyboard_list = ["Nearest AEDs", "Static Maps", "Restart"]
         list1 = [[telegram.KeyboardButton(text="Nearest AEDs", request_location=True)],\
                 [telegram.KeyboardButton(text="Static Maps")],\
-                [telegram.KeyboardButton(text="Restart")],\
+                # [telegram.KeyboardButton(text="Restart")],\
                 [telegram.KeyboardButton(text="Quit")]]
         
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
@@ -63,9 +85,6 @@ def start(update_obj, context):
         return STATECHECKER
     except Exception as e:
         cancel(e, context)
-
-
-
 
 
 def state_checker(update_obj, context):
@@ -78,8 +97,8 @@ def state_checker(update_obj, context):
             return IMAGE 
         elif msg.location:
             return current_location(update_obj, context)
-        elif msg.text == "Restart":
-            return start(update_obj, context)
+        # elif msg.text == "Restart":
+        #     return start(update_obj, context)
         elif msg.text == "Quit":
             return end(update_obj, context)
         else:
@@ -123,10 +142,10 @@ def current_location(update_obj, context):
             update_obj.message.reply_text(sendString)
             counter += 1
             
-        finalString = "Stay Safe!"
-        update_obj.message.reply_text("If you need any more information, please type in the /start command again!", reply_markup=telegram.ReplyKeyboardRemove())
-        update_obj.message.reply_text(finalString)
-        return telegram.ext.ConversationHandler.END
+        update_obj.message.reply_text("Stay Safe!", reply_markup=telegram.ReplyKeyboardRemove())
+        update_obj.message.reply_text("If you need any more information, please type in the /start command again!")
+
+        return ConversationHandler.END
     except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
        cancel(update_obj, context)
@@ -136,7 +155,7 @@ def current_location(update_obj, context):
 # #========================================================================
 def static_map(update_obj, context):
     try:
-        list1 = [[telegram.KeyboardButton(text=camps)] for camps in sorted(list(campButtons.keys()))]
+        list1 = [[telegram.KeyboardButton(text=camps.upper())] for camps in sorted(list(campMaps.keys()))]
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
@@ -155,11 +174,11 @@ def return_image(update_obj, context):
 
         if update_obj.message.text == "QUIT":
             raise Exception
-        elif update_obj.message.text in campButtons.keys():
+        elif update_obj.message.text in campMaps.keys():
             image_path = campMaps[msg]['image']
             url = campMaps[msg]['url']
         elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
-            start(update_obj, context)
+            return start(update_obj, context)
         else:
             raise ValueError
         
@@ -167,22 +186,22 @@ def return_image(update_obj, context):
             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(errorString)
-        elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
-            pass
+        # elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
+        #     pass
         else:
             context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(f"You can find the map at the following link: {url}")
             update_obj.message.reply_text("If you need any more information, please type in the /start command again!",reply_markup=telegram.ReplyKeyboardRemove())
-        return telegram.ext.ConversationHandler.END
+        return ConversationHandler.END
     
     except ValueError:
         errorString = "Please use the buttons provided! Press /start to try again!"
         update_obj.message.reply_text(errorString)
-        return telegram.ext.ConversationHandler.END
+        return ConversationHandler.END
         # else:
         #     errorString = "This input is not recognized! Press /start to try again!"
         #     update_obj.message.reply_text(errorString)
-        #     return telegram.ext.ConversationHandler.END
+        #     return ConversationHandler.END
     except Exception as e:
         update_obj.message.reply_text(f"image exception: {e}")
         cancel(update_obj, context)
@@ -190,16 +209,12 @@ def return_image(update_obj, context):
 
 
 def end(update_obj, context):
-
-    chat_id = update_obj.message.chat_id
-    msg = update_obj.message.text
-
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(
         f"Thank you {first_name}. Please click /start to start again ", reply_markup=telegram.ReplyKeyboardRemove()
     )
-    return telegram.ext.ConversationHandler.END
+    return ConversationHandler.END
 
 
 
@@ -209,30 +224,40 @@ def cancel(update_obj, context):
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(f"There was an issue, please click /start {first_name}!",\
          reply_markup=telegram.ReplyKeyboardRemove())
-    return telegram.ext.ConversationHandler.END
+    return ConversationHandler.END
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
-    return telegram.ext.ConversationHandler.END
+    return ConversationHandler.END
+
+
+
+def unexpected_input(update_obj, context):
+    # get the user's first name
+    update_obj.message.reply_text(f"Unexpected input, please click /start to start the bot!",\
+         reply_markup=telegram.ReplyKeyboardRemove())
+    return ConversationHandler.END
 
 def main():
 
-    handler = telegram.ext.ConversationHandler(
-        entry_points=[telegram.ext.CommandHandler('start', start)],
+    handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
         states={
-                IMAGE:[telegram.ext.MessageHandler(telegram.ext.Filters.text, return_image)],
-                STATECHECKER: [telegram.ext.MessageHandler(telegram.ext.Filters.location, state_checker),
-                telegram.ext.MessageHandler(telegram.ext.Filters.text, state_checker)],
-                MAPSTEP: [telegram.ext.MessageHandler(telegram.ext.Filters.text, static_map)],
-                END: [telegram.ext.MessageHandler(telegram.ext.Filters.text, end)],
-                CANCEL: [telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel)]
+                IMAGE:[MessageHandler(Filters.text, return_image)],
+                STATECHECKER: [MessageHandler(Filters.location, state_checker),
+                MessageHandler(Filters.text, state_checker)],
+                MAPSTEP: [MessageHandler(Filters.text, static_map)],
+                END: [MessageHandler(Filters.text, end)],
+                CANCEL: [MessageHandler(Filters.text, cancel)]
         },
-        fallbacks=[telegram.ext.CommandHandler('cancel', cancel)],
+        fallbacks=[CommandHandler('cancel', cancel)],
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
-    dispatcher.add_handler(telegram.ext.MessageHandler(telegram.ext.Filters.text, cancel))
+    dispatcher.add_handler(MessageHandler(Filters.text, unexpected_input))
+    dispatcher.add_handler(CommandHandler('help', help))
+
     dispatcher.add_error_handler(error)
 
     # start polling for updates from Telegram
