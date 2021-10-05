@@ -157,6 +157,8 @@ def static_map(update_obj, context):
     try:
         list1 = [[telegram.KeyboardButton(text=camps.upper())] for camps in sorted(list(campMaps.keys()))]
         list1.append([telegram.KeyboardButton(text="Restart")])
+        list1.append([telegram.KeyboardButton(text="Quit")])
+
         kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
         
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
@@ -173,8 +175,8 @@ def return_image(update_obj, context):
         image_path = ''
         url = ""
 
-        if update_obj.message.text == "QUIT":
-            raise Exception
+        if update_obj.message.text == "Quit":
+            return end(update_obj, context)
         elif msg in campMaps.keys():
             image_path = campMaps[msg]['image']
             url = campMaps[msg]['url']
