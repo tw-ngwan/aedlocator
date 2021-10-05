@@ -65,7 +65,7 @@ def help(update_obj, context):
         return ConversationHandler.END
 
     except Exception as e:
-        cancel(e, context)
+        unexpected_error(e, context)
 
 
 # The entry function
@@ -84,7 +84,7 @@ def start(update_obj, context):
     # go to the Batallion state
         return STATECHECKER
     except Exception as e:
-        cancel(e, context)
+        unexpected_error(e, context)
 
 
 def state_checker(update_obj, context):
@@ -102,9 +102,9 @@ def state_checker(update_obj, context):
         elif msg.text == "Quit":
             return end(update_obj, context)
         else:
-            return cancel(update_obj, context)
+            return unexpected_error(update_obj, context)
     except Exception as f:
-        cancel(update_obj, context)
+        unexpected_error(update_obj, context)
 
 
 def current_location(update_obj, context):
@@ -148,7 +148,7 @@ def current_location(update_obj, context):
         return ConversationHandler.END
     except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
-       cancel(update_obj, context)
+       unexpected_error(update_obj, context)
 
 
 
@@ -165,7 +165,7 @@ def static_map(update_obj, context):
         return IMAGE
     except Exception as e:
         update_obj.message.reply_text(f"static map exception: {e}")
-        cancel(update_obj, context)
+        unexpected_error(update_obj, context)
 
 def return_image(update_obj, context):
     try:
@@ -207,7 +207,7 @@ def return_image(update_obj, context):
         #     return ConversationHandler.END
     except Exception as e:
         update_obj.message.reply_text(f"image exception: {e}")
-        cancel(update_obj, context)
+        unexpected_error(update_obj, context)
 
 
 
@@ -222,7 +222,7 @@ def end(update_obj, context):
 
 
 
-def cancel(update_obj, context):
+def unexpected_error(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(f"There was an issue, please click /start {first_name}!",\
@@ -252,9 +252,9 @@ def main():
                 MessageHandler(Filters.text, state_checker)],
                 MAPSTEP: [MessageHandler(Filters.text, static_map)],
                 END: [MessageHandler(Filters.text, end)],
-                CANCEL: [MessageHandler(Filters.text, cancel)]
+                CANCEL: [MessageHandler(Filters.text, unexpected_error)]
         },
-        fallbacks=[CommandHandler('cancel', cancel)],
+        fallbacks=[CommandHandler('cancel', unexpected_error)],
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
