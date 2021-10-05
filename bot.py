@@ -174,7 +174,7 @@ def return_image(update_obj, context):
 
         if update_obj.message.text == "QUIT":
             raise Exception
-        elif update_obj.message.text in campMaps.keys():
+        elif msg in campMaps.keys():
             image_path = campMaps[msg]['image']
             url = campMaps[msg]['url']
         elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
