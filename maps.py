@@ -22,8 +22,8 @@ campMaps = {
         "url":"https://www.google.com/maps/d/u/0/edit?mid=1vQ2Y_91Wu8CeavGSaaeKA0uuqjJX2cVt&usp=sharing"
     },
     "mowbray": {
-        "image":badURL,
-        "url":"No URL currently available"
+        "image":"map/mowbray.jpeg",
+        "url":"https://www.google.com/maps/d/u/0/edit?mid=1kM4ulsEZFeIeTmk0Jv9NUqFMc7CGskh2&usp=sharing"
     },
     "hendon":{
         "image":badURL,

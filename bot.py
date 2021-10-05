@@ -165,7 +165,7 @@ def return_image(update_obj, context):
         
         if image_path == badURL:
             errorString = "Sorry, support for this camp is not available yet! Press /start to try again!"
-            context.bot.send_photo(chat_id=chat_id, photo=image_path)
+            context.bot.send_photo(chat_id, photo=open(image_path, 'rb'))
             update_obj.message.reply_text(errorString)
         elif update_obj.message.text == "/start" or update_obj.message.text == "RESTART":
             pass
@@ -176,14 +176,13 @@ def return_image(update_obj, context):
         return telegram.ext.ConversationHandler.END
     
     except ValueError:
-        if msg.isalpha():
-            errorString = "Please use the buttons provided! Press /start to try again!"
-            update_obj.message.reply_text(errorString)
-            return telegram.ext.ConversationHandler.END
-        else:
-            errorString = "This input is not recognized! Press /start to try again!"
-            update_obj.message.reply_text(errorString)
-            return telegram.ext.ConversationHandler.END
+        errorString = "Please use the buttons provided! Press /start to try again!"
+        update_obj.message.reply_text(errorString)
+        return telegram.ext.ConversationHandler.END
+        # else:
+        #     errorString = "This input is not recognized! Press /start to try again!"
+        #     update_obj.message.reply_text(errorString)
+        #     return telegram.ext.ConversationHandler.END
     except Exception as e:
         update_obj.message.reply_text(f"image exception: {e}")
         cancel(update_obj, context)
@@ -198,7 +197,7 @@ def end(update_obj, context):
     # get the user's first name
     first_name = update_obj.message.from_user['first_name']
     update_obj.message.reply_text(
-        f"Thank you {first_name} ", reply_markup=telegram.ReplyKeyboardRemove()
+        f"Thank you {first_name}. Please click /start to start again ", reply_markup=telegram.ReplyKeyboardRemove()
     )
     return telegram.ext.ConversationHandler.END
 
