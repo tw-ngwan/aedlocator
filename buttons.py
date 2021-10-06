@@ -13,5 +13,5 @@ campButtons = {
         "Maju" :telebot.types.KeyboardButton(text='Maju'),
         "ALB" :telebot.types.KeyboardButton(text='ALB'),
         "Gedong" :telebot.types.KeyboardButton(text='Gedong'),
-        "Quit" :telebot.types.KeyboardButton(text="RESTART")
+        "RESTART" :telebot.types.KeyboardButton(text="RESTART")
 }
