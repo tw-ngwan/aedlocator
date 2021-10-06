@@ -102,7 +102,7 @@ def state_checker(update_obj, context):
         elif msg.text == "Quit":
             return end(update_obj, context)
         else:
-            return unexpected_error(update_obj, context)
+            return unexpected_input(update_obj, context)
     except Exception as f:
         unexpected_error(update_obj, context)
 
