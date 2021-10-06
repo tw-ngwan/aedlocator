@@ -128,7 +128,7 @@ def current_location(update_obj, context):
             sleep(1)
 
 
-        update_obj.message.reply_text("The AEDs below are sorted from nearest to farthest!", reply_markup=telegram.ReplyKeyboardRemove())
+        update_obj.message.reply_text("The 2 Nearest AEDs are shown below", reply_markup=telegram.ReplyKeyboardRemove())
         context.bot.send_chat_action(chat_id, action=telegram.ChatAction.TYPING)
         sleep(0.5)
         counter = 0
