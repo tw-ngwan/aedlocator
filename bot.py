@@ -258,7 +258,7 @@ def main():
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
-    dispatcher.add_handler(MessageHandler(Filters.text, unexpected_input))
+    dispatcher.add_handler(MessageHandler(Filters.text | ~Filters.text, unexpected_input))
     dispatcher.add_handler(CommandHandler('help', help))
 
     dispatcher.add_error_handler(error)
