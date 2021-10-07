@@ -66,6 +66,7 @@ def help(update_obj, context):
 
     except Exception as e:
         unexpected_error(e, context)
+        return ConversationHandler.END
 
 
 # The entry function
@@ -101,10 +102,13 @@ def state_checker(update_obj, context):
         #     return start(update_obj, context)
         elif msg.text == "Quit":
             return end(update_obj, context)
+        elif msg.text == "/start":
+            return start(update_obj, context)
         else:
             return unexpected_input(update_obj, context)
     except Exception as f:
         unexpected_error(update_obj, context)
+        return ConversationHandler.END
 
 
 def current_location(update_obj, context):
@@ -149,6 +153,7 @@ def current_location(update_obj, context):
     except ValueError as e:
        update_obj.message.reply_text(f"location exception: {e}")
        unexpected_error(update_obj, context)
+       return ConversationHandler.END
 
 
 
@@ -166,6 +171,7 @@ def static_map(update_obj, context):
     except Exception as e:
         update_obj.message.reply_text(f"static map exception: {e}")
         unexpected_error(update_obj, context)
+        return ConversationHandler.END
 
 def return_image(update_obj, context):
     try:
@@ -208,6 +214,7 @@ def return_image(update_obj, context):
     except Exception as e:
         update_obj.message.reply_text(f"image exception: {e}")
         unexpected_error(update_obj, context)
+        return ConversationHandler.END
 
 
 
@@ -245,7 +252,7 @@ def unexpected_input(update_obj, context):
 def main():
 
     handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        entry_points=[CommandHandler('start', start), CommandHandler('help', help)],
         states={
                 IMAGE:[MessageHandler(Filters.text, return_image)],
                 STATECHECKER: [MessageHandler(Filters.location, state_checker),
@@ -258,8 +265,9 @@ def main():
         )
     # add the handler to the dispatcher
     dispatcher.add_handler(handler)
+    # dispatcher.add_handler(CommandHandler('help', help))
+
     dispatcher.add_handler(MessageHandler(Filters.text | ~Filters.text, unexpected_input))
-    dispatcher.add_handler(CommandHandler('help', help))
 
     dispatcher.add_error_handler(error)
 
