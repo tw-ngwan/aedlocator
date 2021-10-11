@@ -104,6 +104,8 @@ def state_checker(update_obj, context):
             return end(update_obj, context)
         elif msg.text == "/start":
             return start(update_obj, context)
+        elif msg.text == "/help":
+            return help(update_obj, context)
         else:
             return unexpected_input(update_obj, context)
     except Exception as f:
@@ -188,6 +190,8 @@ def return_image(update_obj, context):
             url = campMaps[msg]['url']
         elif update_obj.message.text == "/start" or update_obj.message.text == "Restart":
             return start(update_obj, context)
+        elif update_obj.message.text == "/help":
+            return help(update_obj, context)
         else:
             raise ValueError
         
