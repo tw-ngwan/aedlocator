@@ -45,19 +45,19 @@ class AED:
 def help(update_obj, context):
     try:
         help_string = """
-        Welcome to AED Locator Bot! Here you can find maps of 
-        SAF camps with labeled AED locations or even find the
-        nearest AEDs to your current location.
+Welcome to AED Locator Bot! Here you can find maps of 
+SAF camps with labeled AED locations or even find the
+nearest AEDs to your current location.
 
-        /start will start the bot and allow you to choose 
-        your appropriate function
+/start will start the bot and allow you to choose 
+your appropriate function
 
-        The bot will request your location if you choose to 
-        find the nearest AEDs
+The bot will request your location if you choose to 
+find the nearest AEDs
 
-        If you are having any issues please contact 62FMD
-        at 6AMB
-        
+If you are having any issues please contact 62FMD
+at 6AMB
+
         
         """
 
