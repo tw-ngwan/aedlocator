@@ -61,7 +61,7 @@ at 6AMB
         
         """
 
-        update_obj.message.reply_text(help_string)
+        update_obj.message.reply_text(help_string, reply_markup=telegram.ReplyKeyboardRemove())
         return ConversationHandler.END
 
     except Exception as e:
@@ -209,7 +209,7 @@ def return_image(update_obj, context):
     
     except ValueError:
         errorString = "Please use the buttons provided! Press /start to try again!"
-        update_obj.message.reply_text(errorString)
+        update_obj.message.reply_text(errorString, reply_markup=telegram.ReplyKeyboardRemove())
         return ConversationHandler.END
         # else:
         #     errorString = "This input is not recognized! Press /start to try again!"
