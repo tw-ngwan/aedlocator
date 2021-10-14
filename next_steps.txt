@@ -1,0 +1,62 @@
+AED Locator Bot Upkeep Manual
+
+This is a relatively simple bot, and the functionality and use cases can be explored in the README.
+
+There are 3 main facets of the bot which need to be kept updated: 
+    1. AED coordinates
+    2. Static Maps
+    3. Heroku Server
+
+
+AED Coordinates:
+    Until a common database of AED coordinates is created, the AED locations need to be regularly checked. This can be done
+    quarterly (or every new AED/change in location can be reported to 62FMD). Once a check has been done, the locations
+    will have to be updated in the locations.py file with the format (latitude, longitude). The list 'locations' has been
+    segregated by camp name (comments indicate this) to improve readability. 
+
+    Simply adding the coordinates into the list is sufficient to ensure the "Nearest AED" function will work correctly.
+
+
+The Static Maps:
+    Static maps involve two updates on a regular basis. Currently, the maps are served as an image from the directory 
+    map/ and as a google maps link. In order to ensure a smooth update two things need to be done.
+
+    1. Update Google Sheets with AED Locations and Create Maps
+        a. Access the google drive folder: https://drive.google.com/drive/folders/1eRVGjv9m22Dct4hKjExQxfF1HuyBjOTE?usp=sharing
+        b. Given new AED locations, add the coordinates to the relevant camp file
+            i. If the camp does not have a google sheet, create a new one with the same format as the others
+        c. Edit a map or create a new map in Google Maps
+            i. Edit a map:
+                1. Find the relevant camp map (will be shared via Google drive)
+                2. Delete the current layer
+                3. Import the locations from the google sheet 
+                4. Format the locations to have the AED symbol and label AED
+
+            ii. Create a new map
+                1. Google maps -> Your Places -> Maps -> Create map
+                2. Import the locations from the google sheet 
+                3. Format the locations to have the AED symbol and label AED
+    
+    2. Update the static map image in map/
+        a. If the camp already exists in maps.py
+            i. Take a screenshot of the updated camp map (best option is to use a mobile device since it allows map rotation)
+            ii. Replace the map in the directory map/ and ensure the naming convention from maps.py is followed
+        b. If the camp is being added to maps.py
+            i. Take a screenshot of the new camp map
+            ii. Using the share function in Google maps, get the link to the map
+            iii. Follow the formatting of the campMaps dictionary to input the camp map image and link as follows:
+
+            "camp name":{
+                "image":"map/camp_name.jpeg",
+                "url": "googleMapSharingURL"
+            }
+
+Heroku Server:
+
+    This check is to ensure that the server is up and running and no issues persist. Currently the Telegram bot API key 
+    can be found in the config variables on the Heroku server. The server is running on a free web dyno and requires
+    a credit card number (no charge) to remain live all month. 
+
+    Issues that might come up:
+        1. Heroku changes policy and number of hours per month changes (currently 1000)
+        2. App crashes due to a bug and needs to be restarted (fix the bug and push to github)
