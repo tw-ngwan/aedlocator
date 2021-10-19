@@ -166,7 +166,7 @@ def static_map(update_obj, context):
         list1.append([telegram.KeyboardButton(text="Restart")])
         list1.append([telegram.KeyboardButton(text="Quit")])
 
-        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
+        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True)
         
         update_obj.message.reply_text("Which camp would you like a map for?",reply_markup=kb )
         return IMAGE
