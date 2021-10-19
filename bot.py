@@ -79,7 +79,7 @@ def start(update_obj, context):
                 # [telegram.KeyboardButton(text="Restart")],\
                 [telegram.KeyboardButton(text="Quit")]]
         
-        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True, one_time_keyboard = True)
+        kb = telegram.ReplyKeyboardMarkup(keyboard=list1,resize_keyboard = True)
 
         update_obj.message.reply_text("Hello there, how can I help you?",reply_markup=kb)
     # go to the Batallion state
