@@ -32,7 +32,11 @@ campMaps = {
     "alb":{
         "image":"map/alb.jpeg",
         "url": "https://www.google.com/maps/d/u/0/edit?mid=1Y2-mAAV_oYzsYVxlfJv_E7psRtbXY0tx&usp=sharing"
-    }
+    },
+    "stagmont":{
+        "image":"map/stagmont.jpeg",
+        "url": "https://www.google.com/maps/d/u/0/edit?mid=1f0ycN3zYlxQ4gKgWFXWZE5XKMs7UP_NJ&usp=sharing"
+    },
 }
 
 
