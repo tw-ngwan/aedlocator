@@ -275,11 +275,13 @@ def main():
 
     dispatcher.add_error_handler(error)
 
+    # Instead of webhook, we use polling as a temporary solution first. Can use webhook later
+    updater.start_polling()
     # start polling for updates from Telegram
-    updater.start_webhook(listen="0.0.0.0",
-                        port=PORT,
-                        url_path=TOKEN,
-                        webhook_url="https://polar-chamber-36116.herokuapp.com/" + TOKEN)
+    # updater.start_webhook(listen="0.0.0.0",
+    #                     port=PORT,
+    #                     url_path=TOKEN,
+    #                     webhook_url="https://polar-chamber-36116.herokuapp.com/" + TOKEN)
     updater.idle()
 
 
