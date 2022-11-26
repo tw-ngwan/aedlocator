@@ -1,0 +1,26 @@
+services:
+  - type: worker
+    name: aed-location-bot
+    env: python
+    repo: https://github.com/tw-ngwan/aedlocator.git # optional
+    region: singapore # optional (defaults to oregon)
+    plan: starter # optional (defaults to starter)
+    branch: main # optional (defaults to master)
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.2
+      - key: TOKEN
+        value: 5697157269:AAFNgM-8N1YPhF95aNMv3oHYSJFDG1ZZhpE
+      - key: TZ
+        value: Asia/Singapore
+
+envVarGroups:
+  - name: conc-settings
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.2
+      - key: TOKEN
+        value: 5697157269:AAFNgM-8N1YPhF95aNMv3oHYSJFDG1ZZhpE
+      - key: TZ
+        value: Asia/Singapore
